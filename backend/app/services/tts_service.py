@@ -206,8 +206,29 @@ class TTSService:
         self.default_voice_id = settings.DEFAULT_TTS_VOICE_ID
         self.default_model = settings.DEFAULT_TTS_MODEL
 
+    def get_elevenlabs_api_key(self) -> Optional[str]:
+        """Dynamically retrieves ELEVENLABS_API_KEY from backend/.env or environment.
+        Allows instant updates when user edits backend/.env without restarting the server.
+        """
+        from dotenv import dotenv_values
+        for env_path in [
+            os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
+            "backend/.env",
+            ".env",
+        ]:
+            if os.path.isfile(env_path):
+                try:
+                    vals = dotenv_values(env_path)
+                    val = vals.get("ELEVENLABS_API_KEY")
+                    if val and val.strip():
+                        return val.strip()
+                except Exception:
+                    pass
+        return os.getenv("ELEVENLABS_API_KEY") or settings.ELEVENLABS_API_KEY
+
     def get_status(self) -> TTSStatusResponse:
-        has_key = bool(settings.ELEVENLABS_API_KEY)
+        key = self.get_elevenlabs_api_key()
+        has_key = bool(key)
         return TTSStatusResponse(
             elevenlabs_configured=has_key,
             default_voice_id=self.default_voice_id,
@@ -236,7 +257,7 @@ class TTSService:
             return await self._synthesize_free_neural(payload, word_count)
 
     async def _synthesize_elevenlabs(self, payload: TTSRequest, word_count: int) -> TTSResponse:
-        api_key = settings.ELEVENLABS_API_KEY
+        api_key = self.get_elevenlabs_api_key()
         if not api_key:
             raise HTTPException(
                 status_code=400,
