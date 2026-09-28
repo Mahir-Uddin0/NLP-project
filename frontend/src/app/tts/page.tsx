@@ -12,7 +12,6 @@ import {
   Sliders,
   Download,
   AlertCircle,
-  CheckCircle2,
   Copy,
   Check,
   Zap,
@@ -20,7 +19,6 @@ import {
   FileAudio,
   Clock,
   ArrowRight,
-  Languages,
 } from "lucide-react";
 import {
   synthesizeSpeech,
@@ -34,23 +32,23 @@ import {
 const PRESET_PROMPTS = [
   {
     title: "AI Welcome",
-    text: "Welcome to our Natural Language Processing platform! You can convert text into lifelike speech with ultra-realistic voices.",
+    text: "Welcome to our Natural Language Processing platform! You can convert text into lifelike speech with natural voices.",
   },
   {
     title: "Product Launch",
-    text: "We are thrilled to announce our next-generation multimodal AI suite. Designed for ultra-low latency, crystal-clear audio, and cross-language intelligence.",
+    text: "We are thrilled to announce our next-generation AI suite. Designed for low latency, crystal-clear audio, and natural intelligence.",
   },
   {
-    title: "Multilingual Greeting",
-    text: "Hello! Welcome to our multilingual speech synthesizer. ¡Hola! Bonjour! Hallo! নমস্কার! Enjoy natural speech in any dialect.",
+    title: "Conversational",
+    text: "Hey there! How has your day been going? Let me know if there is anything I can help you with today.",
   },
   {
     title: "Audiobook Narration",
-    text: "The night was quiet and stars drifted gently across the midnight sky. Far in the distance, a lighthouse beamed its steady golden light across the endless ocean.",
+    text: "The night was quiet and stars drifted gently across the midnight sky. Far in the distance, a lighthouse beamed its steady golden light across the ocean.",
   },
 ];
 
-// Curated ElevenLabs premade voices verified to work on the Free Tier
+// Exactly 4 curated ElevenLabs free premade voices (2 male, 2 female)
 const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
   {
     voice_id: "pNInz6obpgDQGcFmaJgB",
@@ -58,7 +56,7 @@ const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
     provider: "elevenlabs",
     gender: "male",
     accent: "American",
-    description: "Deep, confident, and professional narration (Verified Free Tier)",
+    description: "Deep, confident, and professional narration",
   },
   {
     voice_id: "EXAVITQu4vr4xnSDxMaL",
@@ -66,7 +64,7 @@ const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
     provider: "elevenlabs",
     gender: "female",
     accent: "American",
-    description: "Soft, pleasant, and empathetic female voice (Verified Free Tier)",
+    description: "Soft, pleasant, and empathetic female voice",
   },
   {
     voice_id: "ErXwobaYiN019PkySvjV",
@@ -74,7 +72,7 @@ const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
     provider: "elevenlabs",
     gender: "male",
     accent: "American",
-    description: "Well-rounded, pleasant storyteller voice (Verified Free Tier)",
+    description: "Well-rounded, natural storyteller voice",
   },
   {
     voice_id: "Xb7hH8MSUJpSbSDYk0k2",
@@ -82,62 +80,15 @@ const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
     provider: "elevenlabs",
     gender: "female",
     accent: "British",
-    description: "Clear, confident, news anchor style British voice (Verified Free Tier)",
-  },
-  {
-    voice_id: "JBFqnCBsd6RMkjVDRZzb",
-    name: "George",
-    provider: "elevenlabs",
-    gender: "male",
-    accent: "British",
-    description: "Warm, sophisticated British narrative tone (Verified Free Tier)",
-  },
-  {
-    voice_id: "nPczCjzI2devNBz1zQrb",
-    name: "Brian",
-    provider: "elevenlabs",
-    gender: "male",
-    accent: "American",
-    description: "Deep, resonant, classic documentary style (Verified Free Tier)",
-  },
-  {
-    voice_id: "pFZP5JQG7iQjIQuC4Bku",
-    name: "Lily",
-    provider: "elevenlabs",
-    gender: "female",
-    accent: "British",
-    description: "Warm, articulate, and friendly British female voice (Verified Free Tier)",
-  },
-  {
-    voice_id: "XrExE9yKIg1WjnnlVkGX",
-    name: "Matilda",
-    provider: "elevenlabs",
-    gender: "female",
-    accent: "American",
-    description: "Warm, friendly, audiobooks and podcast voice (Verified Free Tier)",
-  },
-  {
-    voice_id: "onwK4e9ZLuTAKqWW03F9",
-    name: "Daniel",
-    provider: "elevenlabs",
-    gender: "male",
-    accent: "British",
-    description: "Authoritative, deep British broadcaster (Verified Free Tier)",
-  },
-  {
-    voice_id: "VR6AewLTigWG4xSOukaG",
-    name: "Arnold",
-    provider: "elevenlabs",
-    gender: "male",
-    accent: "American",
-    description: "Crisp, resolute, and clear voice (Verified Free Tier)",
+    description: "Clear, confident, and articulate British voice",
   },
 ];
 
+// Exactly 4 curated Free Neural voices (2 male, 2 female)
 const DEFAULT_FREE_VOICES: TTSVoiceInfo[] = [
   {
     voice_id: "en-US-JennyNeural",
-    name: "Jenny (US Neural)",
+    name: "Jenny",
     provider: "edge-tts",
     gender: "female",
     accent: "American",
@@ -145,67 +96,27 @@ const DEFAULT_FREE_VOICES: TTSVoiceInfo[] = [
   },
   {
     voice_id: "en-US-GuyNeural",
-    name: "Guy (US Neural)",
+    name: "Guy",
     provider: "edge-tts",
     gender: "male",
     accent: "American",
     description: "Friendly, conversational American male voice",
   },
   {
-    voice_id: "en-US-AriaNeural",
-    name: "Aria (US Expressive)",
-    provider: "edge-tts",
-    gender: "female",
-    accent: "American",
-    description: "Highly expressive, news and storytelling",
-  },
-  {
     voice_id: "en-GB-SoniaNeural",
-    name: "Sonia (UK Neural)",
+    name: "Sonia",
     provider: "edge-tts",
     gender: "female",
     accent: "British",
-    description: "Refined and articulate British female voice",
+    description: "Refined, articulate British female voice",
   },
   {
     voice_id: "en-GB-RyanNeural",
-    name: "Ryan (UK Neural)",
+    name: "Ryan",
     provider: "edge-tts",
     gender: "male",
     accent: "British",
-    description: "Warm and engaging British male voice",
-  },
-  {
-    voice_id: "bn-BD-NabanitaNeural",
-    name: "Nabanita (Bengali)",
-    provider: "edge-tts",
-    gender: "female",
-    accent: "Bengali",
-    description: "Natural Bangladeshi Bengali female voice",
-  },
-  {
-    voice_id: "bn-BD-PradeepNeural",
-    name: "Pradeep (Bengali)",
-    provider: "edge-tts",
-    gender: "male",
-    accent: "Bengali",
-    description: "Clear and resonant Bengali male voice",
-  },
-  {
-    voice_id: "es-ES-ElviraNeural",
-    name: "Elvira (Spanish)",
-    provider: "edge-tts",
-    gender: "female",
-    accent: "Spanish",
-    description: "Authentic Castilian Spanish voice",
-  },
-  {
-    voice_id: "fr-FR-DeniseNeural",
-    name: "Denise (French)",
-    provider: "edge-tts",
-    gender: "female",
-    accent: "French",
-    description: "Sophisticated Parisian French voice",
+    description: "Smooth, natural British male voice",
   },
 ];
 
@@ -214,17 +125,15 @@ export default function TTSPage() {
     "Welcome to our Natural Language Processing platform. Text to speech lets you hear your content with lifelike voices!"
   );
   const [provider, setProvider] = useState<"elevenlabs" | "free">("elevenlabs");
-  const [voiceId, setVoiceId] = useState("pNInz6obpgDQGcFmaJgB"); // Adam (verified free)
+  const [voiceId, setVoiceId] = useState("pNInz6obpgDQGcFmaJgB"); // Adam
   const [modelId, setModelId] = useState("eleven_multilingual_v2");
   const [stability, setStability] = useState(0.5);
   const [similarityBoost, setSimilarityBoost] = useState(0.75);
   const [speed, setSpeed] = useState(1.0);
-  const [language, setLanguage] = useState("en");
 
   // Status & Voices from backend
-  const [status, setStatus] = useState<TTSStatusResponse | null>(null);
+  const [, setStatus] = useState<TTSStatusResponse | null>(null);
   const [allVoices, setAllVoices] = useState<TTSVoiceInfo[]>([]);
-  const [filterGender, setFilterGender] = useState<"all" | "female" | "male">("all");
 
   // Execution states
   const [isSynthesizing, setIsSynthesizing] = useState(false);
@@ -243,8 +152,6 @@ export default function TTSPage() {
 
   const speedSelectId = useId();
   const modelSelectId = useId();
-  const languageSelectId = useId();
-  const filterGenderId = useId();
 
   // Load status and voices on mount
   useEffect(() => {
@@ -295,28 +202,21 @@ export default function TTSPage() {
     }
   };
 
-  // Filter voices according to current provider & gender filter
+  // 4 voices for current provider
   const currentProviderVoices = (
     allVoices.length > 0
       ? allVoices
       : provider === "elevenlabs"
       ? DEFAULT_ELEVENLABS_VOICES
       : DEFAULT_FREE_VOICES
-  ).filter((v) => {
-    const matchesProvider =
-      provider === "elevenlabs" ? v.provider === "elevenlabs" : v.provider === "edge-tts";
-    const matchesGender = filterGender === "all" ? true : v.gender === filterGender;
-    return matchesProvider && matchesGender;
-  });
+  )
+    .filter((v) =>
+      provider === "elevenlabs" ? v.provider === "elevenlabs" : v.provider === "edge-tts"
+    )
+    .slice(0, 4);
 
   // Selected voice metadata
-  const selectedVoice = (
-    allVoices.length > 0
-      ? allVoices
-      : provider === "elevenlabs"
-      ? DEFAULT_ELEVENLABS_VOICES
-      : DEFAULT_FREE_VOICES
-  ).find((v) => v.voice_id === voiceId);
+  const selectedVoice = currentProviderVoices.find((v) => v.voice_id === voiceId) || currentProviderVoices[0];
 
   // Synthesize Speech
   const handleSynthesize = async (overrideVoiceId?: string, overrideProvider?: "elevenlabs" | "free") => {
@@ -349,7 +249,6 @@ export default function TTSPage() {
         stability,
         similarity_boost: similarityBoost,
         speed,
-        language,
       });
 
       setResult(res);
@@ -449,11 +348,8 @@ export default function TTSPage() {
     return `${mins}:${remainder.toString().padStart(2, "0")}`;
   };
 
-  // Estimate speaking time (avg ~140 words per min)
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const estimatedSeconds = Math.max(1, Math.round((wordCount / 140) * 60 / speed));
-
-  const isPaidPlanVoiceError = error && (error.includes("library voices") || error.includes("paid_plan_required") || error.includes("Paid Voice Restriction"));
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 py-4">
@@ -467,16 +363,15 @@ export default function TTSPage() {
             Text to Speech Studio
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 max-w-2xl">
-            Convert written text into natural, emotional, and lifelike audio speech powered by
-            ElevenLabs AI and Microsoft Neural voices.
+            Convert text into lifelike audio speech with your choice of ElevenLabs AI or Free Neural voice engines.
           </p>
         </div>
 
-        {/* Engine Toggle Pill */}
+        {/* Engine Toggle Pill - Clean & Minimal */}
         <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700/60 self-start sm:self-auto">
           <button
             onClick={() => handleProviderChange("elevenlabs")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               provider === "elevenlabs"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
@@ -484,14 +379,11 @@ export default function TTSPage() {
           >
             <Sparkles className="h-3.5 w-3.5" />
             <span>ElevenLabs AI</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/20 font-mono">
-              PRO
-            </span>
           </button>
 
           <button
             onClick={() => handleProviderChange("free")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               provider === "free"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
@@ -499,16 +391,12 @@ export default function TTSPage() {
           >
             <Zap className="h-3.5 w-3.5 text-amber-400" />
             <span>Free Neural</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
-              FREE
-            </span>
           </button>
         </div>
       </div>
 
       {/* Engine Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* ElevenLabs Engine Info */}
         <div
           onClick={() => handleProviderChange("elevenlabs")}
           className={`cursor-pointer rounded-2xl border p-4 transition-all ${
@@ -520,19 +408,17 @@ export default function TTSPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-900 dark:text-white">
               <Sparkles className="h-4 w-4 text-purple-600" />
-              <span>ElevenLabs AI</span>
+              <span>ElevenLabs Engine</span>
             </div>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-              Active & Verified
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+              Free Tier
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
-            Ultra-realistic speech synthesis with human-like intonation and emotion. Verified free voices:
-            Adam, Bella, Antoni, Alice, George, Brian, Lily, Matilda, Daniel, Arnold.
+            High-fidelity natural voices with expressive inflection and emotional tone.
           </p>
         </div>
 
-        {/* Free Neural Engine Info */}
         <div
           onClick={() => handleProviderChange("free")}
           className={`cursor-pointer rounded-2xl border p-4 transition-all ${
@@ -544,15 +430,14 @@ export default function TTSPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-900 dark:text-white">
               <Zap className="h-4 w-4 text-amber-500" />
-              <span>Free Neural Voice Engine</span>
+              <span>Free Neural Engine</span>
             </div>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-              Unlimited & Ready
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              Unlimited
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
-            Powered by Microsoft Azure Neural voices via edge-tts. 100% free, no quota limits, supports
-            English, Spanish, Bengali, French, German, and more.
+            Powered by Microsoft Azure Neural voices via edge-tts. Fast, high-clarity, and reliable.
           </p>
         </div>
       </div>
@@ -565,9 +450,9 @@ export default function TTSPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-                Sample Presets
+                Sample Prompts
               </span>
-              <span className="text-xs text-zinc-400">Click to load</span>
+              <span className="text-xs text-zinc-400">Click to insert</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {PRESET_PROMPTS.map((p) => (
@@ -614,10 +499,10 @@ export default function TTSPage() {
             </div>
 
             <textarea
-              rows={8}
+              rows={7}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Type or paste any text you would like to convert to high-fidelity speech..."
+              placeholder="Type or paste any text to convert to natural speech..."
               maxLength={5000}
               className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-950 p-4 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white dark:focus:bg-zinc-900 transition resize-y font-normal leading-relaxed"
             />
@@ -645,7 +530,7 @@ export default function TTSPage() {
             </div>
           </div>
 
-          {/* Error Message with Smart Recovery Options */}
+          {/* Error Message with Quick Action */}
           {error && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50/90 dark:border-rose-900/60 dark:bg-rose-950/40 p-4 text-rose-800 dark:text-rose-200 space-y-3">
               <div className="flex items-start gap-3">
@@ -658,47 +543,21 @@ export default function TTSPage() {
                 </div>
               </div>
 
-              {/* Action buttons depending on error type */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-rose-200/60 dark:border-rose-800/60 text-xs">
-                {isPaidPlanVoiceError ? (
-                  <>
-                    <span className="text-rose-600 dark:text-rose-300 font-medium">
-                      Select a verified free ElevenLabs premade voice:
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleSynthesize("pNInz6obpgDQGcFmaJgB", "elevenlabs")}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition text-xs shadow-2xs cursor-pointer"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Use Adam (Free Voice)</span>
-                      </button>
-                      <button
-                        onClick={() => handleSynthesize("EXAVITQu4vr4xnSDxMaL", "elevenlabs")}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition text-xs shadow-2xs cursor-pointer"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Use Bella (Free Voice)</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-rose-600 dark:text-rose-300">
-                      Want instant unlimited voice synthesis?
-                    </span>
-                    <button
-                      onClick={() => {
-                        handleProviderChange("free");
-                        handleSynthesize(undefined, "free");
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold hover:bg-rose-500 transition text-xs shadow-2xs cursor-pointer"
-                    >
-                      <Zap className="h-3.5 w-3.5 text-amber-300" />
-                      <span>Switch to Free Neural & Synthesize</span>
-                    </button>
-                  </>
-                )}
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-rose-200/60 dark:border-rose-800/60 text-xs">
+                <span className="text-rose-600 dark:text-rose-300">
+                  Switch engine to try immediately:
+                </span>
+                <button
+                  onClick={() => {
+                    const fallback = provider === "elevenlabs" ? "free" : "elevenlabs";
+                    handleProviderChange(fallback);
+                    handleSynthesize(undefined, fallback);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold hover:bg-rose-500 transition text-xs shadow-2xs cursor-pointer"
+                >
+                  <Zap className="h-3.5 w-3.5 text-amber-300" />
+                  <span>Switch Engine & Synthesize</span>
+                </button>
               </div>
             </div>
           )}
@@ -710,7 +569,7 @@ export default function TTSPage() {
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-                    Generated Audio Speech
+                    Synthesized Audio Output
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
@@ -875,34 +734,20 @@ export default function TTSPage() {
           )}
         </div>
 
-        {/* Right Column: Voice Selection & Tuning Controls (5 cols) */}
+        {/* Right Column: Voice Selection (Exactly 4 Options) & Tuning (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Voice Selector Card */}
+          {/* Voice Selector Card - Exactly 4 voices */}
           <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-900 dark:text-zinc-100">
                 <Headphones className="h-4 w-4 text-purple-600" />
-                <span>Voice Selection</span>
+                <span>Voice ({provider === "elevenlabs" ? "ElevenLabs" : "Neural"})</span>
               </div>
-
-              {/* Gender filter */}
-              <div className="flex items-center gap-1 text-xs">
-                <label htmlFor={filterGenderId} className="sr-only">Gender filter</label>
-                <select
-                  id={filterGenderId}
-                  value={filterGender}
-                  onChange={(e) => setFilterGender(e.target.value as "all" | "female" | "male")}
-                  className="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs text-zinc-700 dark:text-zinc-300"
-                >
-                  <option value="all">All Genders</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
-                </select>
-              </div>
+              <span className="text-[11px] text-zinc-400">4 Curated Voices</span>
             </div>
 
-            {/* Voice Cards / List */}
-            <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+            {/* Exactly 4 Clean Voice Cards */}
+            <div className="space-y-2.5">
               {currentProviderVoices.map((v) => {
                 const isSelected = voiceId === v.voice_id;
                 return (
@@ -911,41 +756,40 @@ export default function TTSPage() {
                     onClick={() => setVoiceId(v.voice_id)}
                     className={`cursor-pointer rounded-xl p-3 border transition-all ${
                       isSelected
-                        ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 ring-1 ring-purple-500"
+                        ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 ring-1 ring-purple-500 shadow-xs"
                         : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-white dark:bg-zinc-900"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <div
-                          className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold ${
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold ${
                             isSelected
-                              ? "bg-purple-600 text-white"
+                              ? "bg-purple-600 text-white shadow-xs"
                               : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
                           }`}
                         >
                           {v.name.charAt(0)}
                         </div>
-                        <span className="font-bold text-sm text-zinc-900 dark:text-white">
-                          {v.name}
-                        </span>
+                        <div>
+                          <div className="font-bold text-sm text-zinc-900 dark:text-white leading-none">
+                            {v.name}
+                          </div>
+                          <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+                            {v.description}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 capitalize">
-                          {v.gender || "voice"}
+                          {v.gender}
                         </span>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
-                          {v.accent || "Standard"}
+                          {v.accent}
                         </span>
                       </div>
                     </div>
-
-                    {v.description && (
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 line-clamp-2">
-                        {v.description}
-                      </p>
-                    )}
                   </div>
                 );
               })}
@@ -956,7 +800,7 @@ export default function TTSPage() {
           <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-900 dark:text-zinc-100 border-b border-zinc-100 dark:border-zinc-800 pb-3">
               <Sliders className="h-4 w-4 text-purple-600" />
-              <span>Voice Settings & Tuning</span>
+              <span>Voice Settings</span>
             </div>
 
             {/* Playback Speed */}
@@ -992,7 +836,7 @@ export default function TTSPage() {
                 {/* Model Selector */}
                 <div className="space-y-1.5">
                   <label htmlFor={modelSelectId} className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                    ElevenLabs Model
+                    Voice Model
                   </label>
                   <select
                     id={modelSelectId}
@@ -1001,13 +845,10 @@ export default function TTSPage() {
                     className="w-full text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 p-2.5 text-zinc-900 dark:text-zinc-100"
                   >
                     <option value="eleven_multilingual_v2">
-                      Multilingual v2 (29 Languages, Best Emotion)
+                      Multilingual v2 (High Quality)
                     </option>
                     <option value="eleven_turbo_v2_5">
-                      Turbo v2.5 (Fastest & Low Latency)
-                    </option>
-                    <option value="eleven_monolingual_v1">
-                      Monolingual v1 (English Legacy)
+                      Turbo v2.5 (Fast & Low Latency)
                     </option>
                   </select>
                 </div>
@@ -1032,8 +873,8 @@ export default function TTSPage() {
                     className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-400">
-                    <span>Variable / Expressive</span>
-                    <span>Consistent / Flat</span>
+                    <span>Expressive</span>
+                    <span>Consistent</span>
                   </div>
                 </div>
 
@@ -1041,7 +882,7 @@ export default function TTSPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                      Clarity & Similarity Boost
+                      Clarity / Similarity
                     </span>
                     <span className="font-mono text-purple-600 dark:text-purple-400 font-bold">
                       {similarityBoost.toFixed(2)}
@@ -1057,35 +898,10 @@ export default function TTSPage() {
                     className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-400">
-                    <span>Low Clarity</span>
+                    <span>Natural</span>
                     <span>High Fidelity</span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Free Neural Specific Language Selector */}
-            {provider === "free" && (
-              <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <label htmlFor={languageSelectId} className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                  <Languages className="h-3.5 w-3.5 text-purple-500" />
-                  <span>Target Spoken Language</span>
-                </label>
-                <select
-                  id={languageSelectId}
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 p-2.5 text-zinc-900 dark:text-zinc-100"
-                >
-                  <option value="en">English (US / UK)</option>
-                  <option value="bn">Bengali / বাংলা (bn-BD)</option>
-                  <option value="es">Spanish / Español (es-ES)</option>
-                  <option value="fr">French / Français (fr-FR)</option>
-                  <option value="de">German / Deutsch (de-DE)</option>
-                  <option value="hi">Hindi / हिन्दी (hi-IN)</option>
-                  <option value="ja">Japanese / 日本語 (ja-JP)</option>
-                  <option value="ar">Arabic / العربية (ar-SA)</option>
-                </select>
               </div>
             )}
 
