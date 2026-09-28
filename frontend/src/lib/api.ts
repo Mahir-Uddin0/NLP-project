@@ -4,6 +4,7 @@ export interface HealthCheckResponse {
   status: string;
   service: string;
   groq_configured?: boolean;
+  elevenlabs_configured?: boolean;
   features: Record<string, string>;
 }
 
@@ -35,10 +36,49 @@ export interface STTStatusResponse {
   configured: boolean;
 }
 
+export interface TTSVoiceInfo {
+  voice_id: string;
+  name: string;
+  provider: "elevenlabs" | "edge-tts" | string;
+  gender?: "male" | "female" | "neutral" | string;
+  accent?: string;
+  description?: string;
+  preview_url?: string;
+}
+
+export interface TTSRequest {
+  text: string;
+  provider?: "elevenlabs" | "free" | "edge-tts" | string;
+  voice_id?: string;
+  model_id?: string;
+  stability?: number;
+  similarity_boost?: number;
+  speed?: number;
+  language?: string;
+}
+
 export interface TTSResponse {
   audio_base64: string;
   content_type: string;
   text_length: number;
+  word_count: number;
+  provider: string;
+  voice_used: string;
+  model_used?: string;
+  duration_seconds?: number;
+}
+
+export interface TTSStatusResponse {
+  elevenlabs_configured: boolean;
+  default_voice_id: string;
+  default_model: string;
+  providers: string[];
+  voices: TTSVoiceInfo[];
+  models: Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>;
 }
 
 export interface TranslationResponse {
@@ -61,14 +101,22 @@ export interface OCRResponse {
 }
 
 // 1. Health check
-export async function checkBackendHealth(): Promise<{ ok: boolean; groqConfigured?: boolean }> {
+export async function checkBackendHealth(): Promise<{
+  ok: boolean;
+  groqConfigured?: boolean;
+  elevenlabsConfigured?: boolean;
+}> {
   try {
     const res = await fetch("http://localhost:8000/health", {
       cache: "no-store",
     });
     if (!res.ok) return { ok: false };
     const data: HealthCheckResponse = await res.json();
-    return { ok: true, groqConfigured: data.groq_configured };
+    return {
+      ok: true,
+      groqConfigured: data.groq_configured,
+      elevenlabsConfigured: data.elevenlabs_configured,
+    };
   } catch {
     return { ok: false };
   }
@@ -132,12 +180,49 @@ export async function transcribeAudio(
   return res.json();
 }
 
-// 4. Feature 2: Text to Speech (TTS)
-export async function synthesizeSpeech(text: string, voice = "default", language = "en"): Promise<TTSResponse> {
+// 4. TTS Status & Voices
+export async function fetchTTSStatus(): Promise<TTSStatusResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/tts/status`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchTTSVoices(provider?: string): Promise<TTSVoiceInfo[]> {
+  try {
+    const url = provider
+      ? `${API_BASE_URL}/tts/voices?provider=${encodeURIComponent(provider)}`
+      : `${API_BASE_URL}/tts/voices`;
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+// 5. Feature 2: Text to Speech (TTS)
+export async function synthesizeSpeech(
+  request: TTSRequest | string,
+  voice = "default",
+  language = "en"
+): Promise<TTSResponse> {
+  const payload: TTSRequest =
+    typeof request === "string"
+      ? { text: request, voice_id: voice, language }
+      : request;
+
   const res = await fetch(`${API_BASE_URL}/tts/synthesize`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, voice, language }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {

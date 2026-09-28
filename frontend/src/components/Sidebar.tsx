@@ -40,9 +40,9 @@ const navigationItems = [
     name: "2. Text to Speech",
     href: "/tts",
     icon: Volume2,
-    badge: "Step 2",
+    badge: "Active",
     badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-    poweredBy: "Pending",
+    poweredBy: "ElevenLabs & Free",
   },
   {
     name: "3. Machine Translation",
@@ -76,6 +76,7 @@ export default function Sidebar() {
   const [backendStatus, setBackendStatus] = useState<{
     ok: boolean | null;
     groqConfigured?: boolean;
+    elevenlabsConfigured?: boolean;
   }>({ ok: null });
 
   useEffect(() => {
@@ -83,7 +84,11 @@ export default function Sidebar() {
     const check = async () => {
       const res = await checkBackendHealth();
       if (mounted) {
-        setBackendStatus({ ok: res.ok, groqConfigured: res.groqConfigured });
+        setBackendStatus({
+          ok: res.ok,
+          groqConfigured: res.groqConfigured,
+          elevenlabsConfigured: res.elevenlabsConfigured,
+        });
       }
     };
     check();
@@ -233,6 +238,16 @@ export default function Sidebar() {
               </span>
               <span className="text-indigo-600 dark:text-indigo-400 text-[11px] font-bold">
                 Whisper Turbo
+              </span>
+            </div>
+
+            {/* TTS Status */}
+            <div className="flex items-center justify-between text-xs font-semibold pt-1 border-t border-zinc-200/50 dark:border-zinc-800/50">
+              <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+                <Volume2 className="h-3.5 w-3.5 text-purple-500" /> TTS Engine
+              </span>
+              <span className="text-purple-600 dark:text-purple-400 text-[11px] font-bold">
+                {backendStatus.elevenlabsConfigured ? "ElevenLabs & Free" : "Free Neural"}
               </span>
             </div>
           </div>
