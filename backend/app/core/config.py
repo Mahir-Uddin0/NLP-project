@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # ElevenLabs API configuration for Text-to-Speech
     ELEVENLABS_API_KEY: Optional[str] = None
     ELEVENLABS_BASE_URL: str = "https://api.elevenlabs.io/v1"
-    DEFAULT_TTS_VOICE_ID: str = "21m00Tcm4TlvDq8ikWAM"  # Rachel (default warm conversational voice)
+    DEFAULT_TTS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Adam (verified free premade voice)
     DEFAULT_TTS_MODEL: str = "eleven_multilingual_v2"
 
     @field_validator("CORS_ORIGINS", mode="before")

@@ -11,31 +11,15 @@ from app.schemas.tts import TTSRequest, TTSResponse, TTSVoiceInfo, TTSStatusResp
 
 logger = logging.getLogger(__name__)
 
-# Curated ElevenLabs default premier voices
+# Curated ElevenLabs verified free tier premade voices
 ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
-    TTSVoiceInfo(
-        voice_id="21m00Tcm4TlvDq8ikWAM",
-        name="Rachel",
-        provider="elevenlabs",
-        gender="female",
-        accent="American",
-        description="Calm, warm, and natural conversational voice (Default)",
-    ),
     TTSVoiceInfo(
         voice_id="pNInz6obpgDQGcFmaJgB",
         name="Adam",
         provider="elevenlabs",
         gender="male",
         accent="American",
-        description="Deep, confident, and professional narration",
-    ),
-    TTSVoiceInfo(
-        voice_id="ErXwobaYiN019PkySvjV",
-        name="Antoni",
-        provider="elevenlabs",
-        gender="male",
-        accent="American",
-        description="Well-rounded, pleasant storyteller voice",
+        description="Deep, confident, and professional narration (Verified Free Tier)",
     ),
     TTSVoiceInfo(
         voice_id="EXAVITQu4vr4xnSDxMaL",
@@ -43,23 +27,15 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="female",
         accent="American",
-        description="Soft, pleasant, and empathetic female voice",
+        description="Soft, pleasant, and empathetic female voice (Verified Free Tier)",
     ),
     TTSVoiceInfo(
-        voice_id="TxGEqnHWrfWFTfGW9XjX",
-        name="Josh",
+        voice_id="ErXwobaYiN019PkySvjV",
+        name="Antoni",
         provider="elevenlabs",
         gender="male",
         accent="American",
-        description="Young, deep, authoritative voice for presentations",
-    ),
-    TTSVoiceInfo(
-        voice_id="JBFqnCBsd6RMkjVDRZzb",
-        name="George",
-        provider="elevenlabs",
-        gender="male",
-        accent="British",
-        description="Warm, sophisticated British male narrative tone",
+        description="Well-rounded, pleasant storyteller voice (Verified Free Tier)",
     ),
     TTSVoiceInfo(
         voice_id="Xb7hH8MSUJpSbSDYk0k2",
@@ -67,23 +43,15 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="female",
         accent="British",
-        description="Clear, confident, news anchor style British voice",
+        description="Clear, confident, news anchor style British voice (Verified Free Tier)",
     ),
     TTSVoiceInfo(
-        voice_id="yoZ06aMxZJJ28mfd3POQ",
-        name="Sam",
+        voice_id="JBFqnCBsd6RMkjVDRZzb",
+        name="George",
         provider="elevenlabs",
         gender="male",
-        accent="American",
-        description="Dynamic, raspy, energetic commercial voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="XB0fDUnXU5powFXDhCwa",
-        name="Charlotte",
-        provider="elevenlabs",
-        gender="female",
-        accent="Swedish / European",
-        description="Distinctive, elegant, video games and audiobooks",
+        accent="British",
+        description="Warm, sophisticated British narrative tone (Verified Free Tier)",
     ),
     TTSVoiceInfo(
         voice_id="nPczCjzI2devNBz1zQrb",
@@ -91,7 +59,39 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="male",
         accent="American",
-        description="Deep, resonant, classic documentary style",
+        description="Deep, resonant, classic documentary style (Verified Free Tier)",
+    ),
+    TTSVoiceInfo(
+        voice_id="pFZP5JQG7iQjIQuC4Bku",
+        name="Lily",
+        provider="elevenlabs",
+        gender="female",
+        accent="British",
+        description="Warm, articulate, and friendly British female voice (Verified Free Tier)",
+    ),
+    TTSVoiceInfo(
+        voice_id="XrExE9yKIg1WjnnlVkGX",
+        name="Matilda",
+        provider="elevenlabs",
+        gender="female",
+        accent="American",
+        description="Warm, friendly, audiobooks and podcast voice (Verified Free Tier)",
+    ),
+    TTSVoiceInfo(
+        voice_id="onwK4e9ZLuTAKqWW03F9",
+        name="Daniel",
+        provider="elevenlabs",
+        gender="male",
+        accent="British",
+        description="Authoritative, deep British broadcaster (Verified Free Tier)",
+    ),
+    TTSVoiceInfo(
+        voice_id="VR6AewLTigWG4xSOukaG",
+        name="Arnold",
+        provider="elevenlabs",
+        gender="male",
+        accent="American",
+        description="Crisp, resolute, and clear voice (Verified Free Tier)",
     ),
 ]
 
@@ -206,29 +206,8 @@ class TTSService:
         self.default_voice_id = settings.DEFAULT_TTS_VOICE_ID
         self.default_model = settings.DEFAULT_TTS_MODEL
 
-    def get_elevenlabs_api_key(self) -> Optional[str]:
-        """Dynamically retrieves ELEVENLABS_API_KEY from backend/.env or environment.
-        Allows instant updates when user edits backend/.env without restarting the server.
-        """
-        from dotenv import dotenv_values
-        for env_path in [
-            os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
-            "backend/.env",
-            ".env",
-        ]:
-            if os.path.isfile(env_path):
-                try:
-                    vals = dotenv_values(env_path)
-                    val = vals.get("ELEVENLABS_API_KEY")
-                    if val and val.strip():
-                        return val.strip()
-                except Exception:
-                    pass
-        return os.getenv("ELEVENLABS_API_KEY") or settings.ELEVENLABS_API_KEY
-
     def get_status(self) -> TTSStatusResponse:
-        key = self.get_elevenlabs_api_key()
-        has_key = bool(key)
+        has_key = bool(settings.ELEVENLABS_API_KEY)
         return TTSStatusResponse(
             elevenlabs_configured=has_key,
             default_voice_id=self.default_voice_id,
@@ -257,7 +236,7 @@ class TTSService:
             return await self._synthesize_free_neural(payload, word_count)
 
     async def _synthesize_elevenlabs(self, payload: TTSRequest, word_count: int) -> TTSResponse:
-        api_key = self.get_elevenlabs_api_key()
+        api_key = settings.ELEVENLABS_API_KEY
         if not api_key:
             raise HTTPException(
                 status_code=400,
@@ -329,6 +308,15 @@ class TTSService:
                 raise HTTPException(
                     status_code=401,
                     detail="Invalid ElevenLabs API Key. Please verify your ELEVENLABS_API_KEY in backend/.env.",
+                )
+            elif res.status_code == 402 or "paid_plan_required" in error_text:
+                raise HTTPException(
+                    status_code=402,
+                    detail=(
+                        "ElevenLabs Paid Voice Restriction: Free accounts cannot use library voices via API. "
+                        "Please select one of the verified free voices (Adam, Bella, Antoni, Alice, George, Brian, Lily, Matilda, Daniel, Arnold) "
+                        "or switch to the Free Neural engine."
+                    ),
                 )
             elif res.status_code == 429:
                 raise HTTPException(
