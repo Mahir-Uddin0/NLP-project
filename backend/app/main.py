@@ -40,6 +40,8 @@ async def health_check():
         "service": settings.PROJECT_NAME,
         "groq_configured": bool(settings.GROQ_API_KEY),
         "elevenlabs_configured": bool(settings.ELEVENLABS_API_KEY),
+        "translation_configured": True,
+        "mymemory_email": settings.MYMEMORY_EMAIL,
         "features": {
             "stt": f"{settings.API_V1_STR}/stt/transcribe",
             "tts": f"{settings.API_V1_STR}/tts/synthesize",
