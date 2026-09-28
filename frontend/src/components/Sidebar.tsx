@@ -48,9 +48,9 @@ const navigationItems = [
     name: "3. Machine Translation",
     href: "/translation",
     icon: Languages,
-    badge: "Step 3",
+    badge: "Active",
     badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    poweredBy: "Pending",
+    poweredBy: "MyMemory API",
   },
   {
     name: "4. Question Answering",
@@ -248,6 +248,16 @@ export default function Sidebar() {
               </span>
               <span className="text-purple-600 dark:text-purple-400 text-[11px] font-bold">
                 {backendStatus.elevenlabsConfigured ? "ElevenLabs & Free" : "Free Neural"}
+              </span>
+            </div>
+
+            {/* Translation Status */}
+            <div className="flex items-center justify-between text-xs font-semibold pt-1 border-t border-zinc-200/50 dark:border-zinc-800/50">
+              <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+                <Languages className="h-3.5 w-3.5 text-blue-500" /> Translation
+              </span>
+              <span className="text-blue-600 dark:text-blue-400 text-[11px] font-bold">
+                MyMemory API
               </span>
             </div>
           </div>

@@ -81,11 +81,31 @@ export interface TTSStatusResponse {
   }>;
 }
 
+export interface LanguageInfo {
+  code: string;
+  name: string;
+  native_name: string;
+  flag?: string;
+}
+
 export interface TranslationResponse {
   translated_text: string;
   source_lang: string;
   target_lang: string;
   detected_source_lang?: string;
+  match_quality?: number;
+  character_count: number;
+  word_count: number;
+  provider: string;
+  alternative_matches?: string[];
+}
+
+export interface TranslationStatusResponse {
+  status: string;
+  provider: string;
+  registered_email: string;
+  daily_limit_words: number;
+  languages: LanguageInfo[];
 }
 
 export interface QAResponse {
@@ -105,17 +125,21 @@ export async function checkBackendHealth(): Promise<{
   ok: boolean;
   groqConfigured?: boolean;
   elevenlabsConfigured?: boolean;
+  translationConfigured?: boolean;
+  mymemoryEmail?: string;
 }> {
   try {
     const res = await fetch("http://localhost:8000/health", {
       cache: "no-store",
     });
     if (!res.ok) return { ok: false };
-    const data: HealthCheckResponse = await res.json();
+    const data: HealthCheckResponse & { translation_configured?: boolean; mymemory_email?: string } = await res.json();
     return {
       ok: true,
       groqConfigured: data.groq_configured,
       elevenlabsConfigured: data.elevenlabs_configured,
+      translationConfigured: data.translation_configured,
+      mymemoryEmail: data.mymemory_email,
     };
   } catch {
     return { ok: false };
@@ -233,8 +257,37 @@ export async function synthesizeSpeech(
   return res.json();
 }
 
-// 5. Feature 3: Machine Translation
-export async function translateText(text: string, sourceLang = "auto", targetLang = "es"): Promise<TranslationResponse> {
+// 6. Translation Status & Languages
+export async function fetchTranslationStatus(): Promise<TranslationStatusResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/translation/status`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchTranslationLanguages(): Promise<LanguageInfo[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/translation/languages`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+// 7. Feature 3: Machine Translation via MyMemory API
+export async function translateText(
+  text: string,
+  sourceLang = "auto",
+  targetLang = "bn"
+): Promise<TranslationResponse> {
   const res = await fetch(`${API_BASE_URL}/translation/translate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
