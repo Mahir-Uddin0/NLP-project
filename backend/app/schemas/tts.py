@@ -15,12 +15,12 @@ class TTSVoiceInfo(BaseModel):
 class TTSRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=5000, description="Text to synthesize into speech")
     provider: Optional[str] = Field("elevenlabs", description="TTS Provider: 'elevenlabs' or 'free'")
-    voice_id: Optional[str] = Field("21m00Tcm4TlvDq8ikWAM", description="Voice ID or name")
+    voice_id: Optional[str] = Field("pNInz6obpgDQGcFmaJgB", description="Voice ID or name (Default: Adam)")
     model_id: Optional[str] = Field("eleven_multilingual_v2", description="ElevenLabs model ID")
     stability: Optional[float] = Field(0.5, ge=0.0, le=1.0, description="ElevenLabs voice stability")
     similarity_boost: Optional[float] = Field(0.75, ge=0.0, le=1.0, description="ElevenLabs clarity/similarity boost")
     speed: Optional[float] = Field(1.0, ge=0.5, le=2.0, description="Speech playback speed multiplier")
-    language: Optional[str] = Field("en", description="Spoken language code (e.g. en, es, fr, bn)")
+    language: Optional[str] = Field(None, description="Optional language parameter")
 
 
 class TTSResponse(BaseModel):

@@ -11,7 +11,7 @@ from app.schemas.tts import TTSRequest, TTSResponse, TTSVoiceInfo, TTSStatusResp
 
 logger = logging.getLogger(__name__)
 
-# Curated ElevenLabs verified free tier premade voices
+# Curated ElevenLabs voices (Limited to 4 distinct voices)
 ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
     TTSVoiceInfo(
         voice_id="pNInz6obpgDQGcFmaJgB",
@@ -19,7 +19,7 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="male",
         accent="American",
-        description="Deep, confident, and professional narration (Verified Free Tier)",
+        description="Deep, confident, and professional narration",
     ),
     TTSVoiceInfo(
         voice_id="EXAVITQu4vr4xnSDxMaL",
@@ -27,7 +27,7 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="female",
         accent="American",
-        description="Soft, pleasant, and empathetic female voice (Verified Free Tier)",
+        description="Soft, pleasant, and empathetic female voice",
     ),
     TTSVoiceInfo(
         voice_id="ErXwobaYiN019PkySvjV",
@@ -35,7 +35,7 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="male",
         accent="American",
-        description="Well-rounded, pleasant storyteller voice (Verified Free Tier)",
+        description="Well-rounded, pleasant storyteller voice",
     ),
     TTSVoiceInfo(
         voice_id="Xb7hH8MSUJpSbSDYk0k2",
@@ -43,63 +43,15 @@ ELEVENLABS_VOICES: List[TTSVoiceInfo] = [
         provider="elevenlabs",
         gender="female",
         accent="British",
-        description="Clear, confident, news anchor style British voice (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="JBFqnCBsd6RMkjVDRZzb",
-        name="George",
-        provider="elevenlabs",
-        gender="male",
-        accent="British",
-        description="Warm, sophisticated British narrative tone (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="nPczCjzI2devNBz1zQrb",
-        name="Brian",
-        provider="elevenlabs",
-        gender="male",
-        accent="American",
-        description="Deep, resonant, classic documentary style (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="pFZP5JQG7iQjIQuC4Bku",
-        name="Lily",
-        provider="elevenlabs",
-        gender="female",
-        accent="British",
-        description="Warm, articulate, and friendly British female voice (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="XrExE9yKIg1WjnnlVkGX",
-        name="Matilda",
-        provider="elevenlabs",
-        gender="female",
-        accent="American",
-        description="Warm, friendly, audiobooks and podcast voice (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="onwK4e9ZLuTAKqWW03F9",
-        name="Daniel",
-        provider="elevenlabs",
-        gender="male",
-        accent="British",
-        description="Authoritative, deep British broadcaster (Verified Free Tier)",
-    ),
-    TTSVoiceInfo(
-        voice_id="VR6AewLTigWG4xSOukaG",
-        name="Arnold",
-        provider="elevenlabs",
-        gender="male",
-        accent="American",
-        description="Crisp, resolute, and clear voice (Verified Free Tier)",
+        description="Clear, confident, news anchor style British voice",
     ),
 ]
 
-# Curated Free Neural Voices (Edge-TTS)
+# Curated Free Neural Voices (Limited to 4 distinct voices)
 FREE_NEURAL_VOICES: List[TTSVoiceInfo] = [
     TTSVoiceInfo(
         voice_id="en-US-JennyNeural",
-        name="Jenny (US Neural)",
+        name="Jenny",
         provider="edge-tts",
         gender="female",
         accent="American",
@@ -107,23 +59,15 @@ FREE_NEURAL_VOICES: List[TTSVoiceInfo] = [
     ),
     TTSVoiceInfo(
         voice_id="en-US-GuyNeural",
-        name="Guy (US Neural)",
+        name="Guy",
         provider="edge-tts",
         gender="male",
         accent="American",
         description="Friendly, conversational American male voice",
     ),
     TTSVoiceInfo(
-        voice_id="en-US-AriaNeural",
-        name="Aria (US Expressive)",
-        provider="edge-tts",
-        gender="female",
-        accent="American",
-        description="Highly expressive, news and storytelling",
-    ),
-    TTSVoiceInfo(
         voice_id="en-GB-SoniaNeural",
-        name="Sonia (UK Neural)",
+        name="Sonia",
         provider="edge-tts",
         gender="female",
         accent="British",
@@ -131,51 +75,11 @@ FREE_NEURAL_VOICES: List[TTSVoiceInfo] = [
     ),
     TTSVoiceInfo(
         voice_id="en-GB-RyanNeural",
-        name="Ryan (UK Neural)",
+        name="Ryan",
         provider="edge-tts",
         gender="male",
         accent="British",
         description="Smooth, natural British male voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="es-ES-ElviraNeural",
-        name="Elvira (Spanish)",
-        provider="edge-tts",
-        gender="female",
-        accent="Spanish (Spain)",
-        description="Warm and natural European Spanish voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="fr-FR-DeniseNeural",
-        name="Denise (French)",
-        provider="edge-tts",
-        gender="female",
-        accent="French",
-        description="Elegant, fluent French female voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="de-DE-KatjaNeural",
-        name="Katja (German)",
-        provider="edge-tts",
-        gender="female",
-        accent="German",
-        description="Clear, standard German female voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="bn-BD-NabanitaNeural",
-        name="Nabanita (Bengali)",
-        provider="edge-tts",
-        gender="female",
-        accent="Bengali (Bangladesh)",
-        description="Standard natural Bengali female voice",
-    ),
-    TTSVoiceInfo(
-        voice_id="hi-IN-SwaraNeural",
-        name="Swara (Hindi)",
-        provider="edge-tts",
-        gender="female",
-        accent="Hindi (India)",
-        description="Polished, natural Hindi female voice",
     ),
 ]
 
