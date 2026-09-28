@@ -54,6 +54,7 @@ export default function STTPage() {
 
   // File upload state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Configuration settings
   const [language, setLanguage] = useState("auto");
@@ -236,10 +237,35 @@ export default function STTPage() {
     }
   };
 
-  // Handle file drop / file select
+  // Handle file select
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setUploadedFile(file);
+      setError(null);
+      setResult(null);
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
       setUploadedFile(file);
       setError(null);
       setResult(null);
@@ -471,10 +497,19 @@ export default function STTPage() {
           {/* TAB 2: AUDIO FILE UPLOAD */}
           {activeTab === "upload" && (
             <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 p-8 shadow-xs space-y-4">
-              <div className="rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors p-8 text-center bg-zinc-50/50 dark:bg-zinc-950/40">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`rounded-2xl border-2 border-dashed transition-all p-8 text-center ${
+                  isDragging
+                    ? "border-indigo-600 bg-indigo-50/60 dark:border-indigo-400 dark:bg-indigo-950/40 scale-[1.01]"
+                    : "border-zinc-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-500 bg-zinc-50/50 dark:bg-zinc-950/40"
+                }`}
+              >
                 <input
                   type="file"
-                  accept="audio/*,.wav,.mp3,.m4a,.ogg,.webm,.flac,.mp4"
+                  accept="audio/*,video/mp4,video/mpeg,.wav,.mp3,.mpeg,.mpg,.mpga,.m4a,.ogg,.webm,.flac,.mp4"
                   id="file-upload"
                   className="hidden"
                   onChange={handleFileSelect}
@@ -483,15 +518,23 @@ export default function STTPage() {
                   htmlFor="file-upload"
                   className="cursor-pointer flex flex-col items-center justify-center space-y-3"
                 >
-                  <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-xs">
+                  <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shadow-xs transition-colors ${
+                    isDragging
+                      ? "bg-indigo-600 text-white"
+                      : "bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400"
+                  }`}>
                     <Upload className="h-7 w-7" />
                   </div>
                   <div>
                     <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200">
-                      {uploadedFile ? uploadedFile.name : "Choose audio file or drag & drop here"}
+                      {uploadedFile
+                        ? uploadedFile.name
+                        : isDragging
+                        ? "Drop audio/video file here..."
+                        : "Choose audio file or drag & drop here"}
                     </span>
                     <p className="text-xs text-zinc-500 mt-1">
-                      WAV, MP3, M4A, OGG, WEBM, FLAC (Max: 25MB)
+                      WAV, MP3, MPEG, MPG, M4A, OGG, WEBM, FLAC, MP4 (Max: 25MB)
                     </p>
                   </div>
                 </label>

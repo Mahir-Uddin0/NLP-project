@@ -99,7 +99,15 @@ export async function transcribeAudio(
     formData.append("file", audio, audio.name);
   } else {
     // Recorded audio blob from browser MediaRecorder
-    const ext = audio.type.includes("wav") ? "wav" : audio.type.includes("mp4") ? "mp4" : "webm";
+    const ext = audio.type.includes("wav")
+      ? "wav"
+      : audio.type.includes("mp4")
+      ? "mp4"
+      : audio.type.includes("mpeg")
+      ? "mpeg"
+      : audio.type.includes("mp3")
+      ? "mp3"
+      : "webm";
     formData.append("file", audio, `recording.${ext}`);
   }
 
