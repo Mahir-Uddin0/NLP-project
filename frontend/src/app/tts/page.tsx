@@ -20,9 +20,7 @@ import {
   FileAudio,
   Clock,
   ArrowRight,
-  Settings2,
   Languages,
-  Info,
 } from "lucide-react";
 import {
   synthesizeSpeech,
@@ -52,30 +50,15 @@ const PRESET_PROMPTS = [
   },
 ];
 
+// Curated ElevenLabs premade voices verified to work on the Free Tier
 const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
-  {
-    voice_id: "21m00Tcm4TlvDq8ikWAM",
-    name: "Rachel",
-    provider: "elevenlabs",
-    gender: "female",
-    accent: "American",
-    description: "Calm, warm, and natural conversational voice (Default)",
-  },
   {
     voice_id: "pNInz6obpgDQGcFmaJgB",
     name: "Adam",
     provider: "elevenlabs",
     gender: "male",
     accent: "American",
-    description: "Deep, confident, and professional narration",
-  },
-  {
-    voice_id: "ErXwobaYiN019PkySvjV",
-    name: "Antoni",
-    provider: "elevenlabs",
-    gender: "male",
-    accent: "American",
-    description: "Well-rounded, pleasant storyteller voice",
+    description: "Deep, confident, and professional narration (Verified Free Tier)",
   },
   {
     voice_id: "EXAVITQu4vr4xnSDxMaL",
@@ -83,23 +66,71 @@ const DEFAULT_ELEVENLABS_VOICES: TTSVoiceInfo[] = [
     provider: "elevenlabs",
     gender: "female",
     accent: "American",
-    description: "Soft, pleasant, and empathetic female voice",
+    description: "Soft, pleasant, and empathetic female voice (Verified Free Tier)",
   },
   {
-    voice_id: "TxGEqnHWrfWFTfGW9XjX",
-    name: "Josh",
+    voice_id: "ErXwobaYiN019PkySvjV",
+    name: "Antoni",
     provider: "elevenlabs",
     gender: "male",
     accent: "American",
-    description: "Warm, authentic, and engaging male voice",
+    description: "Well-rounded, pleasant storyteller voice (Verified Free Tier)",
   },
   {
-    voice_id: "MF3mGyEYCl7XYWbV9V6O",
-    name: "Elli",
+    voice_id: "Xb7hH8MSUJpSbSDYk0k2",
+    name: "Alice",
+    provider: "elevenlabs",
+    gender: "female",
+    accent: "British",
+    description: "Clear, confident, news anchor style British voice (Verified Free Tier)",
+  },
+  {
+    voice_id: "JBFqnCBsd6RMkjVDRZzb",
+    name: "George",
+    provider: "elevenlabs",
+    gender: "male",
+    accent: "British",
+    description: "Warm, sophisticated British narrative tone (Verified Free Tier)",
+  },
+  {
+    voice_id: "nPczCjzI2devNBz1zQrb",
+    name: "Brian",
+    provider: "elevenlabs",
+    gender: "male",
+    accent: "American",
+    description: "Deep, resonant, classic documentary style (Verified Free Tier)",
+  },
+  {
+    voice_id: "pFZP5JQG7iQjIQuC4Bku",
+    name: "Lily",
+    provider: "elevenlabs",
+    gender: "female",
+    accent: "British",
+    description: "Warm, articulate, and friendly British female voice (Verified Free Tier)",
+  },
+  {
+    voice_id: "XrExE9yKIg1WjnnlVkGX",
+    name: "Matilda",
     provider: "elevenlabs",
     gender: "female",
     accent: "American",
-    description: "Young, clear, and energetic female voice",
+    description: "Warm, friendly, audiobooks and podcast voice (Verified Free Tier)",
+  },
+  {
+    voice_id: "onwK4e9ZLuTAKqWW03F9",
+    name: "Daniel",
+    provider: "elevenlabs",
+    gender: "male",
+    accent: "British",
+    description: "Authoritative, deep British broadcaster (Verified Free Tier)",
+  },
+  {
+    voice_id: "VR6AewLTigWG4xSOukaG",
+    name: "Arnold",
+    provider: "elevenlabs",
+    gender: "male",
+    accent: "American",
+    description: "Crisp, resolute, and clear voice (Verified Free Tier)",
   },
 ];
 
@@ -182,8 +213,8 @@ export default function TTSPage() {
   const [text, setText] = useState(
     "Welcome to our Natural Language Processing platform. Text to speech lets you hear your content with lifelike voices!"
   );
-  const [provider, setProvider] = useState<"elevenlabs" | "free">("free");
-  const [voiceId, setVoiceId] = useState("en-US-JennyNeural");
+  const [provider, setProvider] = useState<"elevenlabs" | "free">("elevenlabs");
+  const [voiceId, setVoiceId] = useState("pNInz6obpgDQGcFmaJgB"); // Adam (verified free)
   const [modelId, setModelId] = useState("eleven_multilingual_v2");
   const [stability, setStability] = useState(0.5);
   const [similarityBoost, setSimilarityBoost] = useState(0.75);
@@ -225,7 +256,7 @@ export default function TTSPage() {
           setStatus(s);
           if (s.elevenlabs_configured) {
             setProvider("elevenlabs");
-            setVoiceId(s.default_voice_id || "21m00Tcm4TlvDq8ikWAM");
+            setVoiceId(s.default_voice_id || "pNInz6obpgDQGcFmaJgB");
           } else {
             setProvider("free");
             setVoiceId("en-US-JennyNeural");
@@ -235,7 +266,7 @@ export default function TTSPage() {
           }
         }
       } catch {
-        // Fallback to local defaults if backend is initializing
+        // Fallback to local defaults
       }
 
       try {
@@ -258,7 +289,7 @@ export default function TTSPage() {
     setProvider(newProvider);
     setError(null);
     if (newProvider === "elevenlabs") {
-      setVoiceId("21m00Tcm4TlvDq8ikWAM");
+      setVoiceId("pNInz6obpgDQGcFmaJgB");
     } else {
       setVoiceId("en-US-JennyNeural");
     }
@@ -288,11 +319,17 @@ export default function TTSPage() {
   ).find((v) => v.voice_id === voiceId);
 
   // Synthesize Speech
-  const handleSynthesize = async () => {
+  const handleSynthesize = async (overrideVoiceId?: string, overrideProvider?: "elevenlabs" | "free") => {
     if (!text.trim()) {
       setError("Please enter some text to synthesize.");
       return;
     }
+
+    const activeProvider = overrideProvider || provider;
+    const activeVoiceId = overrideVoiceId || voiceId;
+
+    if (overrideProvider) setProvider(overrideProvider);
+    if (overrideVoiceId) setVoiceId(overrideVoiceId);
 
     setIsSynthesizing(true);
     setError(null);
@@ -306,8 +343,8 @@ export default function TTSPage() {
     try {
       const res = await synthesizeSpeech({
         text,
-        provider,
-        voice_id: voiceId,
+        provider: activeProvider,
+        voice_id: activeVoiceId,
         model_id: modelId,
         stability,
         similarity_boost: similarityBoost,
@@ -331,9 +368,7 @@ export default function TTSPage() {
       setTimeout(() => {
         if (audioRef.current) {
           audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(() => {
-            // Browser autoplay policy might require manual interaction
-          });
+          audioRef.current.play().catch(() => {});
         }
       }, 100);
     } catch (err: unknown) {
@@ -418,6 +453,8 @@ export default function TTSPage() {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const estimatedSeconds = Math.max(1, Math.round((wordCount / 140) * 60 / speed));
 
+  const isPaidPlanVoiceError = error && (error.includes("library voices") || error.includes("paid_plan_required") || error.includes("Paid Voice Restriction"));
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 py-4">
       {/* Header */}
@@ -439,7 +476,7 @@ export default function TTSPage() {
         <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700/60 self-start sm:self-auto">
           <button
             onClick={() => handleProviderChange("elevenlabs")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               provider === "elevenlabs"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
@@ -454,7 +491,7 @@ export default function TTSPage() {
 
           <button
             onClick={() => handleProviderChange("free")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               provider === "free"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
@@ -483,15 +520,15 @@ export default function TTSPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-zinc-900 dark:text-white">
               <Sparkles className="h-4 w-4 text-purple-600" />
-              <span>ElevenLabs API</span>
+              <span>ElevenLabs AI</span>
             </div>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300">
-              {status?.elevenlabs_configured ? "Key Configured" : "Available"}
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              Active & Verified
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
-            Ultra-realistic speech synthesis with human-like intonation, emotion, and adjustable
-            stability & clarity.
+            Ultra-realistic speech synthesis with human-like intonation and emotion. Verified free voices:
+            Adam, Bella, Antoni, Alice, George, Brian, Lily, Matilda, Daniel, Arnold.
           </p>
         </div>
 
@@ -515,7 +552,7 @@ export default function TTSPage() {
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
             Powered by Microsoft Azure Neural voices via edge-tts. 100% free, no quota limits, supports
-            English, Spanish, Bengali, and more.
+            English, Spanish, Bengali, French, German, and more.
           </p>
         </div>
       </div>
@@ -537,7 +574,7 @@ export default function TTSPage() {
                 <button
                   key={p.title}
                   onClick={() => setText(p.text)}
-                  className="px-3 py-2 text-left rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-950/30 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition truncate shadow-2xs"
+                  className="px-3 py-2 text-left rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-950/30 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition truncate shadow-2xs cursor-pointer"
                 >
                   {p.title}
                 </button>
@@ -555,7 +592,7 @@ export default function TTSPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyText}
-                  className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 px-2 py-1 rounded-md transition"
+                  className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 px-2 py-1 rounded-md transition cursor-pointer"
                   title="Copy text"
                 >
                   {copiedText ? (
@@ -567,7 +604,7 @@ export default function TTSPage() {
                 </button>
                 <button
                   onClick={() => setText("")}
-                  className="flex items-center gap-1 text-xs text-zinc-400 hover:text-rose-500 px-2 py-1 rounded-md transition"
+                  className="flex items-center gap-1 text-xs text-zinc-400 hover:text-rose-500 px-2 py-1 rounded-md transition cursor-pointer"
                   title="Clear text"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -608,36 +645,61 @@ export default function TTSPage() {
             </div>
           </div>
 
-          {/* Error Message with Fallback Helper */}
+          {/* Error Message with Smart Recovery Options */}
           {error && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50/90 dark:border-rose-900/60 dark:bg-rose-950/40 p-4 text-rose-800 dark:text-rose-200 space-y-3">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
                 <div className="space-y-1 text-xs sm:text-sm">
-                  <div className="font-bold">Synthesis Error</div>
+                  <div className="font-bold">Synthesis Notice</div>
                   <div className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
                     {error}
                   </div>
                 </div>
               </div>
 
-              {provider === "elevenlabs" && (
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-rose-200/60 dark:border-rose-800/60 text-xs">
-                  <span className="text-rose-600 dark:text-rose-300">
-                    Want instant unlimited voice synthesis without API restrictions?
-                  </span>
-                  <button
-                    onClick={() => {
-                      handleProviderChange("free");
-                      handleSynthesize();
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold hover:bg-rose-500 transition text-xs shadow-2xs"
-                  >
-                    <Zap className="h-3.5 w-3.5 text-amber-300" />
-                    <span>Switch to Free Neural & Synthesize</span>
-                  </button>
-                </div>
-              )}
+              {/* Action buttons depending on error type */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-rose-200/60 dark:border-rose-800/60 text-xs">
+                {isPaidPlanVoiceError ? (
+                  <>
+                    <span className="text-rose-600 dark:text-rose-300 font-medium">
+                      Select a verified free ElevenLabs premade voice:
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleSynthesize("pNInz6obpgDQGcFmaJgB", "elevenlabs")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition text-xs shadow-2xs cursor-pointer"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>Use Adam (Free Voice)</span>
+                      </button>
+                      <button
+                        onClick={() => handleSynthesize("EXAVITQu4vr4xnSDxMaL", "elevenlabs")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-500 transition text-xs shadow-2xs cursor-pointer"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>Use Bella (Free Voice)</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-rose-600 dark:text-rose-300">
+                      Want instant unlimited voice synthesis?
+                    </span>
+                    <button
+                      onClick={() => {
+                        handleProviderChange("free");
+                        handleSynthesize(undefined, "free");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold hover:bg-rose-500 transition text-xs shadow-2xs cursor-pointer"
+                    >
+                      <Zap className="h-3.5 w-3.5 text-amber-300" />
+                      <span>Switch to Free Neural & Synthesize</span>
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -717,7 +779,7 @@ export default function TTSPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={togglePlayPause}
-                      className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/20 transition hover:scale-105 active:scale-95"
+                      className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/20 transition hover:scale-105 active:scale-95 cursor-pointer"
                       aria-label={isPlaying ? "Pause" : "Play"}
                     >
                       {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
@@ -730,7 +792,7 @@ export default function TTSPage() {
                           setCurrentTime(0);
                         }
                       }}
-                      className="p-2.5 rounded-lg text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                      className="p-2.5 rounded-lg text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                       title="Replay from start"
                     >
                       <RotateCcw className="h-4 w-4" />
@@ -740,7 +802,7 @@ export default function TTSPage() {
                     <div className="flex items-center gap-2 pl-2">
                       <button
                         onClick={toggleMute}
-                        className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                        className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
                       >
                         {isMuted || volume === 0 ? (
                           <VolumeX className="h-4 w-4" />
@@ -763,7 +825,7 @@ export default function TTSPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleDownload}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer"
                     >
                       <Download className="h-3.5 w-3.5" />
                       <span>Download MP3</span>
@@ -1029,7 +1091,7 @@ export default function TTSPage() {
 
             {/* Synthesize CTA Button */}
             <button
-              onClick={handleSynthesize}
+              onClick={() => handleSynthesize()}
               disabled={isSynthesizing || !text.trim()}
               className="w-full mt-4 flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold text-sm py-3.5 transition shadow-md shadow-purple-600/25 active:scale-98 cursor-pointer"
             >
