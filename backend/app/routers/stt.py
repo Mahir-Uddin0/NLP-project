@@ -36,13 +36,13 @@ async def get_stt_status():
 
 @router.post("/transcribe", response_model=STTResponse)
 async def transcribe_audio(
-    file: UploadFile = File(..., description="Audio file (WAV, MP3, M4A, OGG, WEBM, FLAC, MP4)"),
+    file: UploadFile = File(..., description="Audio file (WAV, MP3, MPEG, MPG, MPGA, M4A, OGG, WEBM, FLAC, MP4)"),
     language: Optional[str] = Form("auto", description="Audio language code (e.g. 'en', 'es', 'bn', or 'auto')"),
     model: Optional[str] = Form("whisper-large-v3-turbo", description="Groq Whisper model to use"),
     temperature: Optional[float] = Form(0.0, description="Sampling temperature (0.0 for deterministic output)"),
 ):
     """Transcribes spoken audio into text using Groq Whisper API.
-    Supports both file uploads and microphone blobs directly from the browser.
+    Supports audio uploads (including MPEG / MP3 / WAV / etc.) as well as microphone blobs.
     """
     try:
         content = await file.read()
@@ -56,6 +56,7 @@ async def transcribe_audio(
             language=language,
             model=model,
             temperature=temperature or 0.0,
+            content_type=file.content_type,
         )
     except HTTPException:
         raise

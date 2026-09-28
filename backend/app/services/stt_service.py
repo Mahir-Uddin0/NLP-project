@@ -10,8 +10,12 @@ logger = logging.getLogger(__name__)
 MIME_MAP = {
     "wav": "audio/wav",
     "mp3": "audio/mpeg",
+    "mpeg": "audio/mpeg",
+    "mpg": "audio/mpeg",
+    "mpga": "audio/mpeg",
     "m4a": "audio/m4a",
     "ogg": "audio/ogg",
+    "oga": "audio/ogg",
     "webm": "audio/webm",
     "flac": "audio/flac",
     "mp4": "audio/mp4",
@@ -32,6 +36,7 @@ class STTService:
         language: Optional[str] = "auto",
         model: Optional[str] = None,
         temperature: float = 0.0,
+        content_type: Optional[str] = None,
     ) -> STTResponse:
         api_key = settings.GROQ_API_KEY
         if not api_key:
@@ -42,10 +47,21 @@ class STTService:
 
         selected_model = model or self.default_model
         ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "webm"
-        mime_type = MIME_MAP.get(ext, "audio/webm")
+        
+        # Resolve correct MIME type for Groq Whisper (ensuring MPEG files use audio/mpeg)
+        mime_type = MIME_MAP.get(ext) or content_type or "audio/mpeg"
+        if ext in ("mpeg", "mpg", "mpga") or (content_type and "mpeg" in content_type):
+            mime_type = "audio/mpeg"
+
+        # Ensure filename extension conforms to Groq Whisper expectations
+        groq_filename = filename
+        if ext == "mpg":
+            groq_filename = f"{filename[:-4]}.mpeg"
+        elif ext not in MIME_MAP and not any(groq_filename.lower().endswith(e) for e in MIME_MAP):
+            groq_filename = f"{filename}.mp3"
 
         logger.info(
-            f"Sending STT request to Groq: file='{filename}' ({len(audio_bytes)} bytes), "
+            f"Sending STT request to Groq: file='{groq_filename}' ({len(audio_bytes)} bytes), "
             f"mime='{mime_type}', model='{selected_model}', lang='{language}'"
         )
 
@@ -64,7 +80,7 @@ class STTService:
             form_data["language"] = language.lower()
 
         files = {
-            "file": (filename, audio_bytes, mime_type),
+            "file": (groq_filename, audio_bytes, mime_type),
         }
 
         try:
