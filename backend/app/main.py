@@ -39,6 +39,7 @@ async def health_check():
         "status": "healthy",
         "service": settings.PROJECT_NAME,
         "groq_configured": bool(settings.GROQ_API_KEY),
+        "elevenlabs_configured": bool(settings.ELEVENLABS_API_KEY),
         "features": {
             "stt": f"{settings.API_V1_STR}/stt/transcribe",
             "tts": f"{settings.API_V1_STR}/tts/synthesize",
