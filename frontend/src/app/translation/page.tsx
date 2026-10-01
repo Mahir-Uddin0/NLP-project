@@ -150,7 +150,15 @@ export default function TranslationPage() {
       const data = await translateText(text, sourceLang, targetLang);
       setResult(data);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Translation failed";
+      let msg = err instanceof Error ? err.message : "Translation failed";
+      if (
+        msg.includes("Failed to fetch") ||
+        msg.includes("NetworkError") ||
+        msg.includes("Could not connect") ||
+        msg.includes("Load failed")
+      ) {
+        msg = "Cannot reach the backend server. Please ensure FastAPI is running on port 8000.";
+      }
       setError(msg);
     } finally {
       setLoading(false);
@@ -377,7 +385,10 @@ export default function TranslationPage() {
             <textarea
               rows={9}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (error) setError(null);
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Type, paste, or insert text to translate (Ctrl+Enter to translate)..."
               maxLength={10000}

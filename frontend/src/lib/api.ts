@@ -1,4 +1,42 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
+/**
+ * Smart resilient API fetch helper with proxy and direct fallback:
+ * 1. Checks Next.js internal proxy (/api/backend/...) to bypass CORS and loopback mismatch
+ * 2. Falls back to direct IPv4 loopback (http://127.0.0.1:8000/api/v1/...)
+ * 3. Falls back to http://localhost:8000/api/v1/...
+ */
+export async function apiFetch(endpoint: string, options?: RequestInit): Promise<Response> {
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const candidates: string[] = [];
+
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    candidates.push(process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, ""));
+  }
+
+  // If in browser, use Next.js internal proxy first (zero CORS, zero IPv6 loopback issues)
+  if (typeof window !== "undefined") {
+    candidates.push("/api/backend");
+  }
+
+  // Direct IPv4 loopback and localhost
+  candidates.push("http://127.0.0.1:8000/api/v1");
+  candidates.push("http://localhost:8000/api/v1");
+
+  let lastError: Error | null = null;
+
+  for (const base of candidates) {
+    try {
+      const url = `${base}${cleanEndpoint}`;
+      const res = await fetch(url, options);
+      return res;
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+  }
+
+  throw lastError || new Error(`Could not connect to API backend at ${cleanEndpoint}`);
+}
 
 export interface HealthCheckResponse {
   status: string;
@@ -120,7 +158,7 @@ export interface OCRResponse {
   lines?: string[];
 }
 
-// 1. Health check
+// 1. Health check with resilient fallbacks
 export async function checkBackendHealth(): Promise<{
   ok: boolean;
   groqConfigured?: boolean;
@@ -128,28 +166,36 @@ export async function checkBackendHealth(): Promise<{
   translationConfigured?: boolean;
   mymemoryEmail?: string;
 }> {
-  try {
-    const res = await fetch("http://localhost:8000/health", {
-      cache: "no-store",
-    });
-    if (!res.ok) return { ok: false };
-    const data: HealthCheckResponse & { translation_configured?: boolean; mymemory_email?: string } = await res.json();
-    return {
-      ok: true,
-      groqConfigured: data.groq_configured,
-      elevenlabsConfigured: data.elevenlabs_configured,
-      translationConfigured: data.translation_configured,
-      mymemoryEmail: data.mymemory_email,
-    };
-  } catch {
-    return { ok: false };
+  const healthEndpoints = [
+    "/health",
+    "http://127.0.0.1:8000/health",
+    "http://localhost:8000/health",
+  ];
+
+  for (const url of healthEndpoints) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          ok: true,
+          groqConfigured: data.groq_configured,
+          elevenlabsConfigured: data.elevenlabs_configured,
+          translationConfigured: data.translation_configured,
+          mymemoryEmail: data.mymemory_email,
+        };
+      }
+    } catch {
+      continue;
+    }
   }
+  return { ok: false };
 }
 
 // 2. STT Status
 export async function fetchSTTStatus(): Promise<STTStatusResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/stt/status`, {
+    const res = await apiFetch("/stt/status", {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -191,7 +237,7 @@ export async function transcribeAudio(
 
   formData.append("model", model);
 
-  const res = await fetch(`${API_BASE_URL}/stt/transcribe`, {
+  const res = await apiFetch("/stt/transcribe", {
     method: "POST",
     body: formData,
   });
@@ -207,7 +253,7 @@ export async function transcribeAudio(
 // 4. TTS Status & Voices
 export async function fetchTTSStatus(): Promise<TTSStatusResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/tts/status`, {
+    const res = await apiFetch("/tts/status", {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -219,10 +265,10 @@ export async function fetchTTSStatus(): Promise<TTSStatusResponse | null> {
 
 export async function fetchTTSVoices(provider?: string): Promise<TTSVoiceInfo[]> {
   try {
-    const url = provider
-      ? `${API_BASE_URL}/tts/voices?provider=${encodeURIComponent(provider)}`
-      : `${API_BASE_URL}/tts/voices`;
-    const res = await fetch(url, {
+    const endpoint = provider
+      ? `/tts/voices?provider=${encodeURIComponent(provider)}`
+      : "/tts/voices";
+    const res = await apiFetch(endpoint, {
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -243,7 +289,7 @@ export async function synthesizeSpeech(
       ? { text: request, voice_id: voice, language }
       : request;
 
-  const res = await fetch(`${API_BASE_URL}/tts/synthesize`, {
+  const res = await apiFetch("/tts/synthesize", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -260,7 +306,7 @@ export async function synthesizeSpeech(
 // 6. Translation Status & Languages
 export async function fetchTranslationStatus(): Promise<TranslationStatusResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/translation/status`, {
+    const res = await apiFetch("/translation/status", {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -272,7 +318,7 @@ export async function fetchTranslationStatus(): Promise<TranslationStatusRespons
 
 export async function fetchTranslationLanguages(): Promise<LanguageInfo[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/translation/languages`, {
+    const res = await apiFetch("/translation/languages", {
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -288,7 +334,7 @@ export async function translateText(
   sourceLang = "auto",
   targetLang = "bn"
 ): Promise<TranslationResponse> {
-  const res = await fetch(`${API_BASE_URL}/translation/translate`, {
+  const res = await apiFetch("/translation/translate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, source_lang: sourceLang, target_lang: targetLang }),
@@ -304,7 +350,7 @@ export async function translateText(
 
 // 6. Feature 4: Question Answering (QA)
 export async function askQuestion(question: string, context?: string): Promise<QAResponse> {
-  const res = await fetch(`${API_BASE_URL}/qa/ask`, {
+  const res = await apiFetch("/qa/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question, context }),
@@ -323,7 +369,7 @@ export async function extractTextFromImage(imageFile: File): Promise<OCRResponse
   const formData = new FormData();
   formData.append("file", imageFile);
 
-  const res = await fetch(`${API_BASE_URL}/ocr/extract`, {
+  const res = await apiFetch("/ocr/extract", {
     method: "POST",
     body: formData,
   });
