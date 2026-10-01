@@ -19,7 +19,7 @@ import {
   X,
   Radio,
 } from "lucide-react";
-import { checkBackendHealth } from "@/lib/api";
+import { checkBackendHealth, normalizeRootUrl } from "@/lib/api";
 
 const navigationItems = [
   {
@@ -77,6 +77,7 @@ export default function Sidebar() {
     ok: boolean | null;
     groqConfigured?: boolean;
     elevenlabsConfigured?: boolean;
+    geminiConfigured?: boolean;
   }>({ ok: null });
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export default function Sidebar() {
           ok: res.ok,
           groqConfigured: res.groqConfigured,
           elevenlabsConfigured: res.elevenlabsConfigured,
+          geminiConfigured: res.geminiConfigured,
         });
       }
     };
@@ -260,11 +262,21 @@ export default function Sidebar() {
                 MyMemory API
               </span>
             </div>
+
+            {/* QA Chatbot Status */}
+            <div className="flex items-center justify-between text-xs font-semibold pt-1 border-t border-zinc-200/50 dark:border-zinc-800/50">
+              <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+                <HelpCircle className="h-3.5 w-3.5 text-amber-500" /> QA Chatbot
+              </span>
+              <span className="text-amber-600 dark:text-amber-400 text-[11px] font-bold">
+                {backendStatus.geminiConfigured ? "Gemini AI" : "Active"}
+              </span>
+            </div>
           </div>
 
           {/* Swagger link */}
           <a
-            href="http://localhost:8000/api/v1/docs"
+            href={`${normalizeRootUrl()}/api/v1/docs`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-indigo-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-indigo-300 dark:hover:bg-zinc-800/60 transition"

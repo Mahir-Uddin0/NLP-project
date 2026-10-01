@@ -1,20 +1,36 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+export function normalizeApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (envUrl) {
+    const clean = envUrl.replace(/\/+$/, "");
+    return clean.endsWith("/api/v1") ? clean : `${clean}/api/v1`;
+  }
+  return "http://127.0.0.1:8000/api/v1";
+}
+
+export function normalizeRootUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (envUrl) {
+    return envUrl.replace(/\/api\/v1\/?$/, "").replace(/\/+$/, "");
+  }
+  return "http://127.0.0.1:8000";
+}
 
 /**
- * Smart resilient API fetch helper with proxy and direct fallback:
- * 1. Checks Next.js internal proxy (/api/backend/...) to bypass CORS and loopback mismatch
- * 2. Falls back to direct IPv4 loopback (http://127.0.0.1:8000/api/v1/...)
- * 3. Falls back to http://localhost:8000/api/v1/...
+ * Smart resilient API fetch helper with cloud proxy and direct fallback:
+ * 1. Checks NEXT_PUBLIC_API_URL directly (e.g. Render production URL)
+ * 2. Checks Next.js internal proxy (/api/backend/...)
+ * 3. Falls back to direct IPv4 loopback (http://127.0.0.1:8000/api/v1/...)
+ * 4. Falls back to http://localhost:8000/api/v1/...
  */
 export async function apiFetch(endpoint: string, options?: RequestInit): Promise<Response> {
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const candidates: string[] = [];
 
   if (process.env.NEXT_PUBLIC_API_URL) {
-    candidates.push(process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, ""));
+    candidates.push(normalizeApiBaseUrl());
   }
 
-  // If in browser, use Next.js internal proxy first (zero CORS, zero IPv6 loopback issues)
+  // Next.js internal proxy route (/api/backend/...)
   if (typeof window !== "undefined") {
     candidates.push("/api/backend");
   }
@@ -23,23 +39,19 @@ export async function apiFetch(endpoint: string, options?: RequestInit): Promise
   candidates.push("http://127.0.0.1:8000/api/v1");
   candidates.push("http://localhost:8000/api/v1");
 
+  const uniqueCandidates = Array.from(new Set(candidates));
   let lastError: Error | null = null;
-  console.log(`[apiFetch] Trying endpoint ${cleanEndpoint} with candidates:`, candidates);
 
-  for (const base of candidates) {
+  for (const base of uniqueCandidates) {
     try {
       const url = `${base}${cleanEndpoint}`;
-      console.log(`[apiFetch] Attempting ${url}...`);
       const res = await fetch(url, options);
-      console.log(`[apiFetch] Success with ${url} (Status: ${res.status})`);
       return res;
     } catch (err: unknown) {
-      console.warn(`[apiFetch] Failed to fetch from ${base}${cleanEndpoint}:`, err);
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
 
-  console.error(`[apiFetch] All candidates failed for ${cleanEndpoint}`);
   throw lastError || new Error(`Could not connect to API backend at ${cleanEndpoint}`);
 }
 
@@ -169,15 +181,19 @@ export async function checkBackendHealth(): Promise<{
   groqConfigured?: boolean;
   elevenlabsConfigured?: boolean;
   translationConfigured?: boolean;
+  geminiConfigured?: boolean;
   mymemoryEmail?: string;
 }> {
+  const rootUrl = normalizeRootUrl();
   const healthEndpoints = [
+    `${rootUrl}/health`,
     "/health",
     "http://127.0.0.1:8000/health",
     "http://localhost:8000/health",
   ];
+  const uniqueEndpoints = Array.from(new Set(healthEndpoints));
 
-  for (const url of healthEndpoints) {
+  for (const url of uniqueEndpoints) {
     try {
       const res = await fetch(url, { cache: "no-store" });
       if (res.ok) {
@@ -187,6 +203,7 @@ export async function checkBackendHealth(): Promise<{
           groqConfigured: data.groq_configured,
           elevenlabsConfigured: data.elevenlabs_configured,
           translationConfigured: data.translation_configured,
+          geminiConfigured: data.gemini_configured,
           mymemoryEmail: data.mymemory_email,
         };
       }
