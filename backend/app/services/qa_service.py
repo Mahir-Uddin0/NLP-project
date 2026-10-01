@@ -28,14 +28,21 @@ FALLBACK_MODELS = [
 
 class QAService:
     def __init__(self):
-        self.api_key = settings.GEMINI_API_KEY
+        self.api_key = None
         self.default_model = settings.DEFAULT_QA_MODEL
         self.client = None
-        if self.api_key and HAS_GEMINI:
-            self.client = genai.Client(api_key=self.api_key)
+
+    def get_client(self):
+        if self.client is None or self.api_key != settings.GEMINI_API_KEY:
+            self.api_key = settings.GEMINI_API_KEY
+            if self.api_key and HAS_GEMINI:
+                self.client = genai.Client(api_key=self.api_key)
+            else:
+                self.client = None
+        return self.client
 
     def is_configured(self) -> bool:
-        return bool(self.api_key and HAS_GEMINI and self.client)
+        return bool(self.get_client())
 
     def get_status(self) -> Dict[str, Any]:
         return {
@@ -83,10 +90,11 @@ class QAService:
                 models_to_try.append(m)
 
         last_error = None
+        client = self.get_client()
         for model_name in models_to_try:
             try:
                 logger.info(f"Attempting QA generation with model: {model_name}")
-                response = await self.client.aio.models.generate_content(
+                response = await client.aio.models.generate_content(
                     model=model_name,
                     contents=contents,
                     config=types.GenerateContentConfig(
