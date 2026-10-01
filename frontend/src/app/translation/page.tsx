@@ -216,19 +216,19 @@ export default function TranslationPage() {
             Machine Translation Studio
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 max-w-2xl">
-            Fast, neural multilingual machine translation powered by the MyMemory Translated API with registered allocation.
+            Fast multilingual machine translation calling the direct MyMemory API endpoint without requiring any API keys or credentials.
           </p>
         </div>
 
-        {/* Email Quota Badge */}
-        <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-xs self-start sm:self-auto">
-          <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        {/* Direct Endpoint Info Badge */}
+        <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-xs self-start sm:self-auto">
+          <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
           <div>
             <div className="font-bold text-blue-900 dark:text-blue-200 leading-none">
-              MyMemory Verified Allocation
+              Direct MyMemory API
             </div>
             <div className="text-[11px] text-blue-700 dark:text-blue-300 mt-0.5">
-              {status?.registered_email || "mahir.uddin.0@gmail.com"} • 50,000 words/day
+              Direct Endpoint • No API Key Required
             </div>
           </div>
         </div>
