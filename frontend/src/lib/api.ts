@@ -24,17 +24,22 @@ export async function apiFetch(endpoint: string, options?: RequestInit): Promise
   candidates.push("http://localhost:8000/api/v1");
 
   let lastError: Error | null = null;
+  console.log(`[apiFetch] Trying endpoint ${cleanEndpoint} with candidates:`, candidates);
 
   for (const base of candidates) {
     try {
       const url = `${base}${cleanEndpoint}`;
+      console.log(`[apiFetch] Attempting ${url}...`);
       const res = await fetch(url, options);
+      console.log(`[apiFetch] Success with ${url} (Status: ${res.status})`);
       return res;
     } catch (err: unknown) {
+      console.warn(`[apiFetch] Failed to fetch from ${base}${cleanEndpoint}:`, err);
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
 
+  console.error(`[apiFetch] All candidates failed for ${cleanEndpoint}`);
   throw lastError || new Error(`Could not connect to API backend at ${cleanEndpoint}`);
 }
 

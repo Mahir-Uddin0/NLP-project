@@ -138,6 +138,7 @@ export default function TranslationPage() {
 
   // Perform Translation
   const handleTranslate = async () => {
+    console.log("Translate button clicked!", { sourceLang, targetLang, textLength: text.length });
     if (!text.trim()) {
       setError("Please enter text to translate.");
       return;
@@ -147,7 +148,9 @@ export default function TranslationPage() {
     setError(null);
 
     try {
+      console.log("Initiating API call...");
       const data = await translateText(text, sourceLang, targetLang);
+      console.log("API call successful!", data);
       setResult(data);
     } catch (err: unknown) {
       console.error("Translation request failed:", err);
@@ -161,6 +164,11 @@ export default function TranslationPage() {
         msg = "Cannot reach the backend server. Please verify the FastAPI backend is running on port 8000.";
       }
       setError(msg);
+      
+      // Force an alert in case React state updates are swallowed
+      if (typeof window !== "undefined") {
+        window.alert(`Translation Failed: ${msg}`);
+      }
     } finally {
       setLoading(false);
     }
