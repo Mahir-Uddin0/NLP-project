@@ -42,14 +42,34 @@ SUPPORTED_LANGUAGES: List[LanguageInfo] = [
 
 
 class TranslationService:
-    """Service handling Machine Translation via the MyMemory Translated API."""
+    """Service handling Machine Translation via the direct MyMemory Translated API without credentials."""
 
     def __init__(self):
-        self.api_url = settings.MYMEMORY_API_URL
-        self.default_email = settings.MYMEMORY_EMAIL or "mahir.uddin.0@gmail.com"
+        self.default_api_url = settings.MYMEMORY_API_URL or "https://api.mymemory.translated.net/get"
+        self.default_email = settings.MYMEMORY_EMAIL
 
-    def get_registered_email(self) -> str:
-        """Dynamically retrieves the configured MyMemory email from environment or settings."""
+    def get_api_url(self) -> str:
+        """Dynamically retrieves the direct MyMemory API URL from environment, .env file, or settings.
+        No API key or credentials required.
+        """
+        from dotenv import dotenv_values
+        for env_path in [
+            os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
+            "backend/.env",
+            ".env",
+        ]:
+            if os.path.isfile(env_path):
+                try:
+                    vals = dotenv_values(env_path)
+                    val = vals.get("MYMEMORY_API_URL")
+                    if val and val.strip():
+                        return val.strip()
+                except Exception:
+                    pass
+        return os.getenv("MYMEMORY_API_URL") or self.default_api_url
+
+    def get_registered_email(self) -> Optional[str]:
+        """Dynamically retrieves the optional MyMemory email from environment or settings."""
         from dotenv import dotenv_values
         for env_path in [
             os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
@@ -67,13 +87,13 @@ class TranslationService:
         return os.getenv("MYMEMORY_EMAIL") or self.default_email
 
     def get_status(self) -> TranslationStatusResponse:
-        """Returns service status, registered email, daily quota, and language catalog."""
+        """Returns service status, direct endpoint, registered email (if any), and supported languages."""
         email = self.get_registered_email()
         return TranslationStatusResponse(
             status="active",
             provider="MyMemory Translated",
-            registered_email=email,
-            daily_limit_words=50000,
+            registered_email=email or "Direct Endpoint (No Credentials Required)",
+            daily_limit_words=50000 if email else 5000,
             languages=SUPPORTED_LANGUAGES,
         )
 
@@ -135,17 +155,19 @@ class TranslationService:
         client: httpx.AsyncClient,
         chunk: str,
         langpair: str,
-        email: str,
+        email: Optional[str] = None,
     ) -> Tuple[str, Optional[float], Optional[str], List[str]]:
-        """Sends a single chunk to the MyMemory API and returns (translated_text, match_quality, detected_source, alternatives)."""
+        """Sends a single chunk directly to the MyMemory API URL without any API key or credentials."""
+        api_url = self.get_api_url()
         params = {
             "q": chunk,
             "langpair": langpair,
-            "de": email,
         }
+        if email and email.strip():
+            params["de"] = email.strip()
 
         try:
-            res = await client.get(self.api_url, params=params, timeout=15.0)
+            res = await client.get(api_url, params=params, timeout=15.0)
 
             if res.status_code == 200:
                 data = res.json()

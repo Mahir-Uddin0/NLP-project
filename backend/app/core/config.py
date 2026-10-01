@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     DEFAULT_TTS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Adam (verified free premade voice)
     DEFAULT_TTS_MODEL: str = "eleven_multilingual_v2"
 
-    # MyMemory API configuration for Machine Translation
+    # MyMemory API configuration for Machine Translation (Direct URL, no API key required)
     MYMEMORY_API_URL: str = "https://api.mymemory.translated.net/get"
-    MYMEMORY_EMAIL: str = "mahir.uddin.0@gmail.com"
+    MYMEMORY_EMAIL: Optional[str] = None
 
     @field_validator("CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
