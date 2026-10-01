@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # Gemini API configuration for Question Answering
     GEMINI_API_KEY: Optional[str] = None
-    DEFAULT_QA_MODEL: str = "gemini-3.8-flash"
+    DEFAULT_QA_MODEL: str = "gemini-3.5-flash"
 
     @field_validator("CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
