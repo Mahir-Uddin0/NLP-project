@@ -39,6 +39,9 @@ class Settings(BaseSettings):
             return v
         return ["http://localhost:3000", "http://127.0.0.1:3000"]
 
+    # Server Port (injected dynamically by Render as $PORT)
+    PORT: Optional[int] = 8000
+
     model_config = SettingsConfigDict(
         env_file=[
             os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
@@ -46,7 +49,7 @@ class Settings(BaseSettings):
             "backend/.env",
         ],
         env_file_encoding="utf-8",
-        case_sensitive=True,
+        case_sensitive=False,
         extra="ignore"
     )
 
