@@ -52,6 +52,7 @@ class TranslationService:
         """Dynamically retrieves the direct MyMemory API URL from environment, .env file, or settings.
         No API key or credentials required.
         """
+        raw_url = None
         from dotenv import dotenv_values
         for env_path in [
             os.path.join(os.path.dirname(__file__), "..", "..", ".env"),
@@ -63,10 +64,18 @@ class TranslationService:
                     vals = dotenv_values(env_path)
                     val = vals.get("MYMEMORY_API_URL")
                     if val and val.strip():
-                        return val.strip()
+                        raw_url = val.strip()
+                        break
                 except Exception:
                     pass
-        return os.getenv("MYMEMORY_API_URL") or self.default_api_url
+        if not raw_url:
+            raw_url = os.getenv("MYMEMORY_API_URL") or self.default_api_url
+
+        # Normalize URL: strip whitespace and trailing slashes, ensure /get endpoint is present
+        clean_url = raw_url.strip().rstrip("/")
+        if not clean_url.endswith("/get"):
+            clean_url = f"{clean_url}/get"
+        return clean_url
 
     def get_registered_email(self) -> Optional[str]:
         """Dynamically retrieves the optional MyMemory email from environment or settings."""
@@ -155,6 +164,7 @@ class TranslationService:
         client: httpx.AsyncClient,
         chunk: str,
         langpair: str,
+        target_lang: str,
         email: Optional[str] = None,
     ) -> Tuple[str, Optional[float], Optional[str], List[str]]:
         """Sends a single chunk directly to the MyMemory API URL without any API key or credentials."""
@@ -171,13 +181,26 @@ class TranslationService:
 
             if res.status_code == 200:
                 data = res.json()
-                response_data = data.get("responseData", {})
-                raw_translation = response_data.get("translatedText", "")
-                clean_translation = html.unescape(raw_translation)
+                response_status = data.get("responseStatus")
+                response_data = data.get("responseData") or {}
+                raw_translation = response_data.get("translatedText") or ""
+                clean_translation = html.unescape(raw_translation).strip()
 
-                # Check if MyMemory returned a daily quota warning
-                if "MYMEMORY WARNING" in clean_translation.upper():
-                    logger.warning(f"MyMemory quota notice: {clean_translation}")
+                # Handle distinct language requirement from MyMemory
+                details = str(data.get("responseDetails") or "").upper()
+                if "PLEASE SELECT TWO DISTINCT LANGUAGES" in clean_translation.upper() or "PLEASE SELECT TWO DISTINCT LANGUAGES" in details:
+                    # The source text is already in the target language
+                    return chunk, 1.0, target_lang, []
+
+                # Handle quota warning
+                if "MYMEMORY WARNING" in clean_translation.upper() or str(response_status) in ("403", "429"):
+                    if "QUOTA" in clean_translation.upper() or "LIMIT" in clean_translation.upper() or str(response_status) in ("403", "429"):
+                        detail_msg = data.get("responseDetails") or clean_translation or "MyMemory daily translation quota reached."
+                        logger.warning(f"MyMemory quota reached: {detail_msg}")
+                        raise HTTPException(
+                            status_code=429,
+                            detail=f"MyMemory quota notice: {detail_msg[:200]}",
+                        )
 
                 match_score = response_data.get("match")
                 if match_score is not None:
@@ -186,18 +209,21 @@ class TranslationService:
                     except (ValueError, TypeError):
                         match_score = None
 
+                # Extract detectedLanguage from responseData (where MyMemory places it)
+                detected_lang: Optional[str] = response_data.get("detectedLanguage")
+                if detected_lang:
+                    detected_lang = str(detected_lang).strip().lower()
+
                 # Extract alternatives from matches array
                 alternatives: List[str] = []
-                detected_lang: Optional[str] = None
                 matches = data.get("matches", [])
 
                 if matches and isinstance(matches, list):
                     for m in matches:
-                        # Grab detected language if available
                         if not detected_lang and m.get("source"):
                             src = m.get("source")
                             if src and src != "False" and src != "autodetect":
-                                detected_lang = src.lower()
+                                detected_lang = str(src).lower()
 
                         trans = m.get("translation")
                         if trans and isinstance(trans, str):
@@ -239,6 +265,20 @@ class TranslationService:
         source_clean = source_lang.strip().lower() if source_lang else "auto"
         target_clean = target_lang.strip().lower() if target_lang else "bn"
 
+        # If user explicitly selected the same source and target language, return directly
+        if source_clean != "auto" and source_clean == target_clean:
+            return TranslationResponse(
+                translated_text=text,
+                source_lang=source_clean,
+                target_lang=target_clean,
+                detected_source_lang=source_clean,
+                match_quality=1.0,
+                character_count=len(text),
+                word_count=len(text.split()),
+                provider="Direct Match",
+                alternative_matches=[],
+            )
+
         # MyMemory uses 'autodetect' for auto-detection
         mymemory_source = "autodetect" if source_clean in ("auto", "autodetect") else source_clean
         langpair = f"{mymemory_source}|{target_clean}"
@@ -264,6 +304,7 @@ class TranslationService:
                     client=client,
                     chunk=chunk,
                     langpair=langpair,
+                    target_lang=target_clean,
                     email=email,
                 )
                 translated_parts.append(part)
