@@ -92,7 +92,7 @@ export default function QAPage() {
             Conversational QA System
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-            Chat with Gemini 3.8 Flash. Upload a PDF to set the context.
+            Chat with Gemini AI. Upload a PDF to set the context.
           </p>
         </div>
       </div>
