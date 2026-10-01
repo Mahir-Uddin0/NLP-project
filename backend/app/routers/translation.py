@@ -38,7 +38,7 @@ async def translate_text(payload: TranslationRequest):
             target_lang=payload.target_lang,
         )
     except HTTPException:
-        raise
+        raise 
     except Exception as e:
         logger.exception("Translation Route Error")
         raise HTTPException(status_code=500, detail=f"Machine Translation failed: {str(e)}")

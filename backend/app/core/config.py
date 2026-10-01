@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     MYMEMORY_API_URL: str = "https://api.mymemory.translated.net/get"
     MYMEMORY_EMAIL: Optional[str] = None
 
+    # Gemini API configuration for Question Answering
+    GEMINI_API_KEY: Optional[str] = None
+    DEFAULT_QA_MODEL: str = "gemini-3.8-flash"
+
     @field_validator("CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
