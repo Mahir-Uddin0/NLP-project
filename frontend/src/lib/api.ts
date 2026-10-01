@@ -353,17 +353,39 @@ export async function translateText(
   return res.json();
 }
 
+export interface ChatMessage {
+  role: "user" | "model";
+  content: string;
+}
+
 // 6. Feature 4: Question Answering (QA)
-export async function askQuestion(question: string, context?: string): Promise<QAResponse> {
+export async function askQuestion(question: string, context?: string, history?: ChatMessage[]): Promise<QAResponse> {
   const res = await apiFetch("/qa/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, context }),
+    body: JSON.stringify({ question, context, history }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Failed to process question" }));
     throw new Error(err.detail || "QA query error");
+  }
+
+  return res.json();
+}
+
+export async function uploadPDF(file: File): Promise<{ filename: string; extracted_text: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await apiFetch("/qa/upload-pdf", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Failed to upload PDF" }));
+    throw new Error(err.detail || "PDF upload error");
   }
 
   return res.json();
