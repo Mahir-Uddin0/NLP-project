@@ -43,7 +43,7 @@ export default function QAPage() {
             Question Answering System
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-            Extract accurate answers from documents or ask open questions using NLP QA models.
+            Extract accurate answers from documents or ask open questions using Google's Gemini API.
           </p>
         </div>
         <div className="text-right hidden sm:block">
@@ -55,7 +55,7 @@ export default function QAPage() {
       <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-900 dark:bg-amber-950/20 text-xs sm:text-sm text-amber-900 dark:text-amber-200 flex items-start gap-3">
         <Sparkles className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold">Feature Implementation Status:</span> Scheduled after Machine Translation.
+          <span className="font-semibold">Powered by Gemini 3.8 Flash:</span> Provides fast, context-aware answers to your questions.
         </div>
       </div>
 
