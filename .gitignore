@@ -77,3 +77,6 @@ test_report*
 run_stt_evaluation.py
 test_live_suite.py
 test_translation.py
+*.pptx
+*.ppt
+generate_presentation.py
