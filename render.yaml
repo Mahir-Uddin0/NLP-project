@@ -15,7 +15,9 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      - key: MYMEMORY_EMAIL
+      - key: LARA_ACCESS_KEY_ID
         sync: false
-      - key: MYMEMORY_API_URL
-        value: https://api.mymemory.translated.net/get
+      - key: LARA_ACCESS_KEY_SECRET
+        sync: false
+      - key: OCR_SPACE_API_KEY
+        sync: false
