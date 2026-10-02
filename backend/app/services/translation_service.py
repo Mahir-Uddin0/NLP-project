@@ -65,7 +65,10 @@ class TranslationService:
                             key_secret = vals.get("LARA_ACCESS_KEY_SECRET").strip()
                     except Exception:
                         pass
-        return key_id, key_secret
+        return (
+            key_id or "MPH76T4GPIEAVI0P5EVQ23GE4U",
+            key_secret or "TJNspQI2n-DBHZbz2gO1panyIDyxzT0eRvLG_wh8MHQ"
+        )
 
     def get_translator(self) -> Translator:
         """Instantiates or returns cached Lara Translator client."""

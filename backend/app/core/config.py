@@ -24,11 +24,11 @@ class Settings(BaseSettings):
     DEFAULT_TTS_MODEL: str = "eleven_multilingual_v2"
 
     # Lara Translate API configuration
-    LARA_ACCESS_KEY_ID: Optional[str] = None
-    LARA_ACCESS_KEY_SECRET: Optional[str] = None
+    LARA_ACCESS_KEY_ID: Optional[str] = "MPH76T4GPIEAVI0P5EVQ23GE4U"
+    LARA_ACCESS_KEY_SECRET: Optional[str] = "TJNspQI2n-DBHZbz2gO1panyIDyxzT0eRvLG_wh8MHQ"
 
     # OCR.space API configuration
-    OCR_SPACE_API_KEY: Optional[str] = None
+    OCR_SPACE_API_KEY: Optional[str] = "K81145082488957"
     OCR_SPACE_API_URL: str = "https://api.ocr.space/parse/image"
     MAX_OCR_FILE_SIZE_BYTES: int = 1024 * 1024  # 1 MB
     MAX_OCR_PDF_PAGES: int = 3

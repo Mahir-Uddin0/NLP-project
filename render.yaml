@@ -16,8 +16,8 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: LARA_ACCESS_KEY_ID
-        sync: false
+        value: MPH76T4GPIEAVI0P5EVQ23GE4U
       - key: LARA_ACCESS_KEY_SECRET
-        sync: false
+        value: TJNspQI2n-DBHZbz2gO1panyIDyxzT0eRvLG_wh8MHQ
       - key: OCR_SPACE_API_KEY
-        sync: false
+        value: K81145082488957

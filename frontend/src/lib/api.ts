@@ -26,6 +26,11 @@ export async function apiFetch(endpoint: string, options?: RequestInit): Promise
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const candidates: string[] = [];
 
+  // For OCR routes, prioritize same-origin Next.js serverless route to prevent Render cold-start latency
+  if (cleanEndpoint.startsWith("/ocr") && typeof window !== "undefined") {
+    candidates.push("/api/backend");
+  }
+
   if (process.env.NEXT_PUBLIC_API_URL) {
     candidates.push(normalizeApiBaseUrl());
   }
@@ -42,11 +47,17 @@ export async function apiFetch(endpoint: string, options?: RequestInit): Promise
   const uniqueCandidates = Array.from(new Set(candidates));
   let lastError: Error | null = null;
 
-  for (const base of uniqueCandidates) {
+  for (let i = 0; i < uniqueCandidates.length; i++) {
+    const base = uniqueCandidates[i];
+    const isLast = i === uniqueCandidates.length - 1;
     try {
       const url = `${base}${cleanEndpoint}`;
       const res = await fetch(url, options);
-      return res;
+      // Return if response is ok, or if it's a client error other than 404, or if this is the last candidate
+      if (res.ok || (res.status !== 404 && res.status < 500) || isLast) {
+        return res;
+      }
+      continue;
     } catch (err: unknown) {
       lastError = err instanceof Error ? err : new Error(String(err));
     }

@@ -39,7 +39,7 @@ class OCRService:
                             break
                     except Exception:
                         pass
-        return key
+        return key or "K81145082488957"
 
     def get_status(self) -> OCRStatusResponse:
         """Returns readiness status and operational parameters."""
