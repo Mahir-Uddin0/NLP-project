@@ -28,6 +28,7 @@ export async function apiFetch(endpoint: string, options?: RequestInit): Promise
 
   // For OCR routes, prioritize same-origin Next.js serverless route to prevent Render cold-start latency
   if (cleanEndpoint.startsWith("/ocr") && typeof window !== "undefined") {
+    candidates.push("/api");
     candidates.push("/api/backend");
   }
 
