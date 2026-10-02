@@ -7,7 +7,7 @@ from .translation import (
     TranslationStatusResponse,
 )
 from .qa import QARequest, QAResponse
-from .ocr import OCRResponse
+from .ocr import OCRResponse, OCRPageResult, OCRStatusResponse
 
 __all__ = [
     "STTRequest",
@@ -24,4 +24,6 @@ __all__ = [
     "QARequest",
     "QAResponse",
     "OCRResponse",
+    "OCRPageResult",
+    "OCRStatusResponse",
 ]
