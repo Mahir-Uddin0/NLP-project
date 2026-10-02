@@ -169,8 +169,22 @@ export interface QAResponse {
   context_used: boolean;
 }
 
+export interface OCRPageResult {
+  page_number: number;
+  parsed_text: string;
+  word_count: number;
+  character_count: number;
+}
+
 export interface OCRResponse {
   extracted_text: string;
+  filename?: string;
+  file_type?: string;
+  file_size_bytes?: number;
+  page_count?: number;
+  pages?: OCRPageResult[];
+  processing_time_ms?: number;
+  provider?: string;
   confidence?: number;
   lines?: string[];
 }
@@ -182,7 +196,7 @@ export async function checkBackendHealth(): Promise<{
   elevenlabsConfigured?: boolean;
   translationConfigured?: boolean;
   geminiConfigured?: boolean;
-  mymemoryEmail?: string;
+  ocrConfigured?: boolean;
 }> {
   const rootUrl = normalizeRootUrl();
   const healthEndpoints = [
@@ -204,7 +218,7 @@ export async function checkBackendHealth(): Promise<{
           elevenlabsConfigured: data.elevenlabs_configured,
           translationConfigured: data.translation_configured,
           geminiConfigured: data.gemini_configured,
-          mymemoryEmail: data.mymemory_email,
+          ocrConfigured: data.ocr_configured,
         };
       }
     } catch {
@@ -408,10 +422,11 @@ export async function uploadPDF(file: File): Promise<{ filename: string; extract
   return res.json();
 }
 
-// 7. Feature 5: Optical Character Recognition (OCR)
-export async function extractTextFromImage(imageFile: File): Promise<OCRResponse> {
+// 7. Feature 5: Optical Character Recognition (OCR) via OCR.space
+export async function extractTextWithOCR(file: File, language = "eng"): Promise<OCRResponse> {
   const formData = new FormData();
-  formData.append("file", imageFile);
+  formData.append("file", file);
+  formData.append("language", language);
 
   const res = await apiFetch("/ocr/extract", {
     method: "POST",
@@ -419,9 +434,11 @@ export async function extractTextFromImage(imageFile: File): Promise<OCRResponse
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Failed to extract text from image" }));
+    const err = await res.json().catch(() => ({ detail: "Failed to extract text from document" }));
     throw new Error(err.detail || "OCR extraction error");
   }
 
   return res.json();
 }
+
+export const extractTextFromImage = extractTextWithOCR;

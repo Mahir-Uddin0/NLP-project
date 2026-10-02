@@ -41,10 +41,9 @@ async def health_check():
         "service": settings.PROJECT_NAME,
         "groq_configured": bool(settings.GROQ_API_KEY),
         "elevenlabs_configured": bool(settings.ELEVENLABS_API_KEY),
-        "translation_configured": True,
+        "translation_configured": bool(settings.LARA_ACCESS_KEY_ID and settings.LARA_ACCESS_KEY_SECRET),
         "gemini_configured": bool(settings.GEMINI_API_KEY),
-        "mymemory_url": settings.MYMEMORY_API_URL,
-        "mymemory_email": settings.MYMEMORY_EMAIL,
+        "ocr_configured": bool(settings.OCR_SPACE_API_KEY),
         "features": {
             "stt": f"{settings.API_V1_STR}/stt/transcribe",
             "tts": f"{settings.API_V1_STR}/tts/synthesize",

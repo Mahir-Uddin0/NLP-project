@@ -10,3 +10,4 @@ edge-tts>=7.2.8
 google-genai==2.26.0
 pypdf==6.19.0
 gunicorn>=22.0.0
+lara-sdk>=1.15.0

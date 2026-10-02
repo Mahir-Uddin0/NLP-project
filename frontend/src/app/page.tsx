@@ -59,14 +59,14 @@ const modules = [
     id: "translation",
     title: "Machine Translation",
     subtitle: "Feature 3 of 5",
-    description: "Accurate multilingual translation across 40+ global languages using direct MyMemory API with zero credentials.",
+    description: "Accurate neural multilingual translation across 200+ global languages powered by Lara Translate AI.",
     icon: Languages,
     href: "/translation",
     color: "blue",
     badge: "Active",
     model: "Neural MT Pipeline",
-    provider: "MyMemory API",
-    highlights: ["Automatic source detection", "One-click copy & swap", "Direct endpoint integration"],
+    provider: "Lara Translate AI",
+    highlights: ["200+ global languages", "Automatic source detection", "One-click copy & swap"],
     accentGradient: "from-blue-500/10 to-blue-500/0 hover:border-blue-500/50",
     badgeBg: "bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300",
     iconBg: "bg-blue-600 text-white",
@@ -91,14 +91,14 @@ const modules = [
     id: "ocr",
     title: "Optical Character Recognition",
     subtitle: "Feature 5 of 5",
-    description: "Scan documents, images, receipts, and screenshots to accurately extract printed and typed text.",
+    description: "Extract text from images and multi-page PDF documents with high fidelity powered by OCR.space.",
     icon: ScanText,
     href: "/ocr",
     color: "rose",
     badge: "Active",
-    model: "OCR Extraction Pipeline",
-    provider: "FastAPI Backend",
-    highlights: ["Multi-format image parser", "Instant text clipboard copy", "Confidence scoring"],
+    model: "OCR.space Cloud Engine",
+    provider: "OCR.space API",
+    highlights: ["Multi-page PDF & image parser", "1 MB & 3-page guardrails", "Multi-language extraction"],
     accentGradient: "from-rose-500/10 to-rose-500/0 hover:border-rose-500/50",
     badgeBg: "bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300",
     iconBg: "bg-rose-600 text-white",
@@ -224,10 +224,10 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className={`h-2 w-2 rounded-full ${health.translationConfigured ? "bg-emerald-500" : "bg-amber-400"}`} />
             <div>
-              <p className="font-semibold text-zinc-800 dark:text-zinc-200">MyMemory MT</p>
-              <p className="text-[11px] text-zinc-500">Zero-Auth Direct</p>
+              <p className="font-semibold text-zinc-800 dark:text-zinc-200">Lara Translate</p>
+              <p className="text-[11px] text-zinc-500">200+ Languages</p>
             </div>
           </div>
 

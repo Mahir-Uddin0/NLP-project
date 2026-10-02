@@ -50,23 +50,23 @@ const navigationItems = [
     icon: Languages,
     badge: "Active",
     badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    poweredBy: "MyMemory API",
+    poweredBy: "Lara Translate",
   },
   {
     name: "4. Question Answering",
     href: "/qa",
     icon: HelpCircle,
-    badge: "Step 4",
+    badge: "Active",
     badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-    poweredBy: "Pending",
+    poweredBy: "Gemini 3.8",
   },
   {
     name: "5. OCR Extraction",
     href: "/ocr",
     icon: ScanText,
-    badge: "Step 5",
+    badge: "Active",
     badgeColor: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
-    poweredBy: "Pending",
+    poweredBy: "OCR.space",
   },
 ];
 
@@ -78,6 +78,8 @@ export default function Sidebar() {
     groqConfigured?: boolean;
     elevenlabsConfigured?: boolean;
     geminiConfigured?: boolean;
+    translationConfigured?: boolean;
+    ocrConfigured?: boolean;
   }>({ ok: null });
 
   useEffect(() => {
@@ -90,6 +92,8 @@ export default function Sidebar() {
           groqConfigured: res.groqConfigured,
           elevenlabsConfigured: res.elevenlabsConfigured,
           geminiConfigured: res.geminiConfigured,
+          translationConfigured: res.translationConfigured,
+          ocrConfigured: res.ocrConfigured,
         });
       }
     };
@@ -259,7 +263,7 @@ export default function Sidebar() {
                 <Languages className="h-3.5 w-3.5 text-blue-500" /> Translation
               </span>
               <span className="text-blue-600 dark:text-blue-400 text-[11px] font-bold">
-                MyMemory API
+                {backendStatus.translationConfigured ? "Lara Translate" : "Active"}
               </span>
             </div>
 
@@ -270,6 +274,16 @@ export default function Sidebar() {
               </span>
               <span className="text-amber-600 dark:text-amber-400 text-[11px] font-bold">
                 {backendStatus.geminiConfigured ? "Gemini AI" : "Active"}
+              </span>
+            </div>
+
+            {/* OCR Status */}
+            <div className="flex items-center justify-between text-xs font-semibold pt-1 border-t border-zinc-200/50 dark:border-zinc-800/50">
+              <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
+                <ScanText className="h-3.5 w-3.5 text-rose-500" /> OCR Pipeline
+              </span>
+              <span className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">
+                {backendStatus.ocrConfigured ? "OCR.space" : "Active"}
               </span>
             </div>
           </div>

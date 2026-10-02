@@ -23,9 +23,15 @@ class Settings(BaseSettings):
     DEFAULT_TTS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Adam (verified free premade voice)
     DEFAULT_TTS_MODEL: str = "eleven_multilingual_v2"
 
-    # MyMemory API configuration for Machine Translation (Direct URL, no API key required)
-    MYMEMORY_API_URL: str = "https://api.mymemory.translated.net/get"
-    MYMEMORY_EMAIL: Optional[str] = None
+    # Lara Translate API configuration
+    LARA_ACCESS_KEY_ID: Optional[str] = None
+    LARA_ACCESS_KEY_SECRET: Optional[str] = None
+
+    # OCR.space API configuration
+    OCR_SPACE_API_KEY: Optional[str] = None
+    OCR_SPACE_API_URL: str = "https://api.ocr.space/parse/image"
+    MAX_OCR_FILE_SIZE_BYTES: int = 1024 * 1024  # 1 MB
+    MAX_OCR_PDF_PAGES: int = 3
 
     # Gemini API configuration for Question Answering
     GEMINI_API_KEY: Optional[str] = None

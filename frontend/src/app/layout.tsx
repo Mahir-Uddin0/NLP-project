@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NLP Suite - Fullstack AI Workspace",
-  description: "Monorepo NLP platform featuring STT (Groq Whisper), TTS, Machine Translation, Question Answering, and OCR.",
+  description: "Monorepo NLP platform featuring STT (Groq Whisper), TTS, Machine Translation (Lara Translate), Question Answering (Gemini), and OCR (OCR.space).",
 };
 
 export default function RootLayout({
