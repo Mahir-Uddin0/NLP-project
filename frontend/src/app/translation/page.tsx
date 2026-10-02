@@ -233,7 +233,7 @@ export default function TranslationPage() {
             Machine Translation Studio
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 max-w-2xl">
-            Fast multilingual machine translation calling the direct MyMemory API endpoint without requiring any API keys or credentials.
+            Neural multilingual machine translation powered by Lara Translate AI supporting 200+ global languages.
           </p>
         </div>
 
@@ -242,10 +242,10 @@ export default function TranslationPage() {
           <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
           <div>
             <div className="font-bold text-blue-900 dark:text-blue-200 leading-none">
-              Direct MyMemory API
+              Lara Translate AI
             </div>
             <div className="text-[11px] text-blue-700 dark:text-blue-300 mt-0.5">
-              Direct Endpoint • No API Key Required
+              Neural Engine • 200+ Languages
             </div>
           </div>
         </div>
@@ -491,7 +491,7 @@ export default function TranslationPage() {
             </div>
           ) : (
             <div className="text-right text-[11px] text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-              Powered by MyMemory Translated Engine
+              Powered by Lara Translate AI Neural Engine
             </div>
           )}
         </div>
