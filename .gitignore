@@ -79,4 +79,7 @@ test_live_suite.py
 test_translation.py
 *.pptx
 *.ppt
-generate_presentation.py
+*presentation*.py
+output/
+.codex*
+
