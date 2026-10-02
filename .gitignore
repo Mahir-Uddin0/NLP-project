@@ -55,3 +55,25 @@ backend/.env
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# OCR Inputs & Test Payloads (confidential user inputs)
+ocr_inputs/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+!frontend/public/**/*
+
+# Test Reports, LaTeX build artifacts, and Evaluation outputs
+test_report*
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.toc
+*.out
+*.synctex.gz
+*_results.json
+run_stt_evaluation.py
+test_live_suite.py
+test_translation.py
